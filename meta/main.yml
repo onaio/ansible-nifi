@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: Ona Engineering
+  description: This role is used to install and configure Apache NiFi
+  min_ansible_version: 2.1
+  license: BSD
+  platforms:
+    - name: Ubuntu
+      verions:
+      - xenial
+    - name: EL
+      versions:
+        - 6
+        - 7
+    - name: AmazonLinux
+      versions:
+        - all
+  categories:
+    - apache
+    - nifi
+    - dataflow

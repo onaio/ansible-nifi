@@ -1,0 +1,76 @@
+---
+- name: Create NiFi source directory
+  file:
+    path: /opt/nifi
+    state: directory
+    mode: 0755
+
+- name: Download binaries
+  get_url:
+    url: http://www-eu.apache.org/dist/nifi/1.4.0/{{ nifi_archive_name }}
+    checksum: sha256:d67c90deb50ed5fee44e7ebf61fbf870f2e97cf1c82ad0f598ff5c4ef905ce99
+    dest: /opt/nifi
+
+- name: Unarchive NiFi distribution
+  unarchive:
+    src: /opt/nifi/{{ nifi_archive_name }}
+    dest: /opt/nifi
+    copy: no
+
+- name: Ensure nifi files are world-readable
+  file: path="{{ nifi_base_dir }}" state=directory mode="a+rX" recurse=yes
+
+- name: Ensure nifi symlink
+  file: src="{{ nifi_base_dir }}/nifi-{{ nifi_version }}" dest="{{ nifi_home }}" state=link
+  notify:
+    - restart nifi
+
+- name: Create nifi systemd service
+  template: src=nifi.service.j2 dest="{{ nifi_service }}" owner=root group=root mode=0644
+  notify:
+    - reload systemctl
+    - restart nifi
+  when: ansible_distribution == "Ubuntu" or (ansible_distribution == "CentOS" and ansible_distribution_major_version >= "7")
+  tags: [ service ]
+
+- name: Create nifi init.d service
+  template: src=nifi-startup.sh.j2 dest=/etc/init.d/nifi owner=root group=root mode=0755
+  when: ansible_distribution == "Amazon" or (ansible_distribution == "CentOS" and ansible_distribution_major_version < "7")
+  tags: [ service ]
+
+- name: Create nifi user
+  user:
+    name: "{{ nifi_user }}"
+
+- name: Ensure nifi-required directories exist and are world-readable
+  file: path="{{ item }}" state=directory owner="{{ nifi_user }}" group="{{ nifi_user }}" mode=0755
+  with_items:
+    - "{{ nifi_conf_dir }}"
+    - "{{ nifi_log_dir }}"
+    - "{{ nifi_pid_dir }}"
+    - "{{ nifi_nar_dir }}"
+    - "{{ nifi_work_dir }}"
+    - "{{ nifi_etc_dir }}"
+    - "{{ nifi_database_repository }}"
+    - "{{ nifi_flowfile_repository }}"
+    - "{{ nifi_run_dir }}"
+
+- name: ensure nifi content repo directories exist
+  file: path="{{ item }}" state=directory owner="{{ nifi_user }}" group="{{ nifi_user }}" mode=0755
+  with_items: "{{ nifi_content_repositories }}"
+
+- name: ensure nifi provenance repo directories exist
+  file: path="{{ item }}" state=directory owner="{{ nifi_user }}" group="{{ nifi_user }}" mode=0755
+  with_items: "{{ nifi_provenance_repositories }}"
+
+- name: ensure zookeeper data directory exists
+  file: path="{{ nifi_zookeeper_dir }}" state=directory owner="{{ nifi_user }}" group="{{ nifi_user }}" mode=0755
+  when: nifi_state_management_embedded_zookeeper_start
+
+- name: add myid file for embedded zookeeper
+  template: src="myid.j2" dest="{{ nifi_zookeeper_dir }}/myid" owner="{{ nifi_user }}" group="{{ nifi_user }}" mode='0644'
+  when: nifi_state_management_embedded_zookeeper_start
+
+- name: ensure nifi extra directories exist
+  file: path="{{ item }}" state=directory owner="{{ nifi_user }}" group="{{ nifi_user }}" mode=0755
+  with_items: "{{ nifi_extra_dirs | default([]) }}"

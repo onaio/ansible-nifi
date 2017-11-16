@@ -1,0 +1,18 @@
+---
+# vars file for nifi
+nifi_archive_name: nifi-{{ nifi_version }}-bin.tar.gz
+
+nifi_user: nifi
+nifi_service: /etc/systemd/system/nifi.service
+nifi_server_bin_dir:
+  Ubuntu: "/bin"
+
+nifi_home: "{{ nifi_base_dir }}/nifi-current"
+nifi_conf_dir: "{{ nifi_home }}/conf"
+nifi_nar_dir: "{{ nifi_home }}/lib"
+nifi_work_dir: "{{ nifi_home }}/work"
+nifi_pid_file: "{{ nifi_pid_dir }}/nifi.pid"
+
+# security vars
+nifi_keystore_path: "{{ nifi_conf_dir }}/keystore.jks"
+nifi_truststore_path: "{{ nifi_conf_dir }}/truststore.jks"

@@ -1,0 +1,18 @@
+[Unit]
+Description=Apache NiFi
+After=syslog.target network.target
+
+[Service]
+User={{ nifi_user }}
+Type=forking
+PIDFile={{ nifi_pid_file }}
+# Run ExecStartPre with root-permissions
+PermissionsStartOnly=true
+Environment="JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
+ExecStartPre=-{{ nifi_server_bin_dir[ansible_distribution]|default('/usr/bin') }}/mkdir -p {{ nifi_pid_dir }}
+ExecStartPre={{ nifi_server_bin_dir[ansible_distribution]|default('/usr/bin') }}/chown -R {{ nifi_user }} {{ nifi_pid_dir }}
+ExecStart={{ nifi_base_dir }}/nifi-current/bin/nifi.sh start
+ExecStop={{ nifi_base_dir }}/nifi-current/bin/nifi.sh stop
+
+[Install]
+WantedBy=multi-user.target
