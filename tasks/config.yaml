@@ -38,6 +38,16 @@
   ignore_errors: yes  # this will fail if already imported, ignore that failure
   tags: [ config, security ]
 
+- name: Ensure NiFi owns key files
+  owner: "{{ nifi_user }}"
+  group: "{{ nifi_user }}"
+  path: "{{ item }}"
+  tags: [ config, security ]
+  with_items:
+    - "{{ nifi_keystore_path }}"
+    - "{{ nifi_truststore_path }}"
+
+
 - name: copy nifi configs
   template: src="{{ item.src }}" dest="{{ item.dest }}" owner="{{ nifi_user }}" group="{{ nifi_user }}" mode='0644'
   with_items:
