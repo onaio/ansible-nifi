@@ -81,6 +81,7 @@ nifi_zookeeper_autopurge_snapRetainCount: 30
 # Security settings
 nifi_initial_admin:
 nifi_is_secure: False
+nifi_needs_keys: False
 nifi_key_pass:
 nifi_store_pass:
 nifi_ca_cert_name: USERTrustRSACertificationAuthority.crt

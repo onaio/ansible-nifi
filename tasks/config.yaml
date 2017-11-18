@@ -10,18 +10,18 @@
 
 - name: generate server certificate
   command: keytool -genkeypair -noprompt -alias {{ nifi_server_alias }} -keyalg rsa -keypass {{ nifi_key_pass }} -storepass {{ nifi_keystore_pass }} -keystore {{ nifi_keystore_path }} -dname "{{ nifi_keytool_dname }}"
-  when: nifi_is_secure
+  when: nifi_needs_keys
   ignore_errors: yes  # this will fail if the key exists, ignore that failure
   tags: [ config, security ]
 
 - name: export server certificate
   command: keytool -export -alias {{ nifi_server_alias }} -storepass {{ nifi_keystore_pass }} -file {{ nifi_conf_dir }}/server.cer -keystore {{ nifi_keystore_path }}
-  when: nifi_is_secure
+  when: nifi_needs_keys
   tags: [ config, security ]
 
 - name: create trust store
   command: keytool -import -noprompt -trustcacerts -alias {{ nifi_server_alias }} -file {{ nifi_conf_dir }}/server.cer -keystore {{ nifi_truststore_path }} -keypass {{ nifi_key_pass }} -storepass {{ nifi_truststore_pass }}
-  when: nifi_is_secure
+  when: nifi_needs_keys
   ignore_errors: yes  # this will fail if already imported, ignore that failure
   tags: [ config, security ]
 
@@ -39,13 +39,15 @@
   tags: [ config, security ]
 
 - name: Ensure NiFi owns key files
-  owner: "{{ nifi_user }}"
-  group: "{{ nifi_user }}"
-  path: "{{ item }}"
+  file:
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_user }}"
+    path: "{{ item }}"
   tags: [ config, security ]
   with_items:
     - "{{ nifi_keystore_path }}"
     - "{{ nifi_truststore_path }}"
+  when: nifi_needs_keys
 
 - name: copy nifi configs
   template: src="{{ item.src }}" dest="{{ item.dest }}" owner="{{ nifi_user }}" group="{{ nifi_user }}" mode='0644'
