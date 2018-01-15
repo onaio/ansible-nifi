@@ -69,6 +69,14 @@
     - { src: "{{ nifi_major_version }}/nifi.sh.j2", dest: "{{ nifi_home }}/bin/nifi.sh" }
     - { src: "{{ nifi_major_version }}/nifi-env.sh.j2", dest: "{{ nifi_home }}/bin/nifi-env.sh" }
 
+- name: Ensure nifi volume fstab record exists
+  mount:
+    path: "{{ nifi_volume_mount_point }}"
+    src: "{{ nifi_volume_device }}"
+    fstype: "{{ nifi_volume_fs_type }}"
+    state: mounted
+    opts: "{{ nifi_volume_mount_opts }}"
+
 - name: Ensure NiFi is running
   service: name=nifi state=started enabled=yes
 
