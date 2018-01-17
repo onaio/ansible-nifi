@@ -114,3 +114,9 @@ nifi_custom_log_levels: []
 # keytool arguments
 nifi_server_alias: nifi-server
 nifi_keytool_dname: "CN=data.ona.io, OU=DATA, O=ONA, L=NY, S=NY, C=US"
+
+# Nifi volume settings
+nifi_volume_mount_point: /mnt/nifi-volume
+nifi_volume_device: /dev/xvdf
+nifi_volume_fs_type: ext4
+nifi_volume_mount_opts: defaults,discard
