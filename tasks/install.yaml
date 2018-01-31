@@ -7,8 +7,8 @@
 
 - name: Download binaries
   get_url:
-    url: http://www-eu.apache.org/dist/nifi/1.4.0/{{ nifi_archive_name }}
-    checksum: sha256:d67c90deb50ed5fee44e7ebf61fbf870f2e97cf1c82ad0f598ff5c4ef905ce99
+    url: http://www-eu.apache.org/dist/nifi/{{ nifi_version }}/{{ nifi_archive_name }}
+    checksum: "{{ nifi_checksum[nifi_version] }}"
     dest: /opt/nifi
 
 - name: Unarchive NiFi distribution
