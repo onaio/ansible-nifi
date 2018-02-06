@@ -1,7 +1,7 @@
 ---
 - name: Create NiFi source directory
   file:
-    path: /opt/nifi
+    path: "{{ nifi_base_dir }}"
     state: directory
     mode: 0755
 
@@ -9,12 +9,12 @@
   get_url:
     url: http://www-eu.apache.org/dist/nifi/{{ nifi_version }}/{{ nifi_archive_name }}
     checksum: "{{ nifi_checksum[nifi_version] }}"
-    dest: /opt/nifi
+    dest: "{{ nifi_base_dir }}"
 
 - name: Unarchive NiFi distribution
   unarchive:
-    src: /opt/nifi/{{ nifi_archive_name }}
-    dest: /opt/nifi
+    src: "{{ nifi_base_dir }}/{{ nifi_archive_name }}"
+    dest: "{{ nifi_base_dir }}"
     copy: no
 
 - name: Ensure nifi files are world-readable
@@ -55,22 +55,22 @@
     - "{{ nifi_flowfile_repository }}"
     - "{{ nifi_run_dir }}"
 
-- name: ensure nifi content repo directories exist
+- name: Ensure nifi content repo directories exist
   file: path="{{ item }}" state=directory owner="{{ nifi_user }}" group="{{ nifi_user }}" mode=0755
   with_items: "{{ nifi_content_repositories }}"
 
-- name: ensure nifi provenance repo directories exist
+- name: Ensure nifi provenance repo directories exist
   file: path="{{ item }}" state=directory owner="{{ nifi_user }}" group="{{ nifi_user }}" mode=0755
   with_items: "{{ nifi_provenance_repositories }}"
 
-- name: ensure zookeeper data directory exists
+- name: Ensure zookeeper data directory exists
   file: path="{{ nifi_zookeeper_dir }}" state=directory owner="{{ nifi_user }}" group="{{ nifi_user }}" mode=0755
   when: nifi_state_management_embedded_zookeeper_start
 
-- name: add myid file for embedded zookeeper
+- name: Add myid file for embedded zookeeper
   template: src="myid.j2" dest="{{ nifi_zookeeper_dir }}/myid" owner="{{ nifi_user }}" group="{{ nifi_user }}" mode='0644'
   when: nifi_state_management_embedded_zookeeper_start
 
-- name: ensure nifi extra directories exist
+- name: Ensure nifi extra directories exist
   file: path="{{ item }}" state=directory owner="{{ nifi_user }}" group="{{ nifi_user }}" mode=0755
   with_items: "{{ nifi_extra_dirs | default([]) }}"
