@@ -1,7 +1,7 @@
 ---
-- include: install.yaml
+- include: install.yml
   tags: install
-- include: config.yaml
+- include: config.yml
   tags: config
-- include: test.yaml
+- include: test.yml
   tags: test
