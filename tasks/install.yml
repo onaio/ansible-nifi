@@ -7,7 +7,7 @@
 
 - name: Download binaries
   get_url:
-    url: http://www-eu.apache.org/dist/nifi/{{ nifi_version }}/{{ nifi_archive_name }}
+    url: http://archive.apache.org/dist/nifi/{{ nifi_version }}/{{ nifi_archive_name }}
     checksum: "{{ nifi_checksum[nifi_version] }}"
     dest: "{{ nifi_base_dir }}"
 
