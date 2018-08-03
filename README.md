@@ -2,7 +2,8 @@ NiFi
 ====
 
 Use this role to install, configure, and manage Apache NiFi.
-Role has been tested with NiFi versions 1.1.x, 1.2.0, 1.3.0 and 1.4.0.
+This role is currently tested with and will work with NiFi version 1.7.1.
+This role has been tested and may work with NiFi versions 1.1.x, 1.2.0, 1.3.0 and 1.4.0, 1.5.0.
 
 Requirements
 ------------
@@ -11,6 +12,11 @@ Prior to executing this role, the NiFi distribution must be accssible on the tar
 ```{{ nifi_base_dir }}/nifi-{{ nifi_version }}/```
   - if RPM, the RPM must be installed
   - if tar.gz, it must be unarchived
+
+Optional Extensions
+-------------------
+
+### Loading scripts from files and include a modules directory
 
 Role Variables
 --------------
@@ -132,7 +138,7 @@ If `nifi_is_secure` is `True` you must also include
 Dependencies
 ------------
 
-NiFi requires java
+NiFi requires Java
 
 Example Playbook
 ----------------
@@ -147,19 +153,9 @@ Install and configure NiFi
           nifi_custom_nars: [ '/opt/extra-nars' ]
           nifi_single_node: False
           nifi_nodes_list: ['nifi-node-1', 'nifi-node-2']      
-      pre_tasks:
-        - name: Upload NiFi distribution (tar.gz) from localhost
-          copy:
-            src: nifi-1.2.0-bin.tar.gz
-            dest: /opt/nifi
-        - name: Unarchive NiFi distribution
-          unarchive:
-            src: /opt/nifi/nifi-1.2.0-bin.tar.gz
-            dest: /opt/nifi
-            copy: no
       roles:
         - role: nifi
-          nifi_version: 1.2.0
+          nifi_version: 1.7.1
 
 License
 -------
