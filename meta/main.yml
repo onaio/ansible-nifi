@@ -7,7 +7,7 @@ galaxy_info:
   platforms:
     - name: Ubuntu
       verions:
-      - xenial
+        - xenial
     - name: EL
       versions:
         - 6
