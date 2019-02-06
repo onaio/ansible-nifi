@@ -15,11 +15,11 @@ galaxy_info:
     - name: AmazonLinux
       versions:
         - all
-  dependencies:
-    - role: geerlingguy.java
-      vars:
-        java_packages: "{{ nifi_java_packages }}"
   categories:
     - apache
     - nifi
     - dataflow
+dependencies:
+  - role: geerlingguy.java
+    vars:
+      java_packages: "{{ nifi_java_packages }}"
