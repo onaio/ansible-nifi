@@ -4,4 +4,5 @@
 - include: config.yml
   tags: config
 - include: test.yml
+  when: nifi_test_if_publicly_accessible
   tags: test
