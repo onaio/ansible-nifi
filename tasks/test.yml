@@ -1,5 +1,5 @@
 ---
 # file: test.yml
 - name: Test that nifi web http port is allocated
-  wait_for: host={{ ansible_ec2_local_ipv4|default(ansible_default_ipv4.address) }} port={{ nifi_is_secure | ternary(nifi_web_https_port, nifi_web_http_port) }}
+  wait_for: host={{ ansible_ec2_local_ipv4|default(ansible_ssh_host) }} port={{ nifi_is_secure | ternary(nifi_web_https_port, nifi_web_http_port) }}
             connect_timeout=10 state=started
