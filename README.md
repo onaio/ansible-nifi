@@ -1,6 +1,8 @@
 NiFi
 ====
 
+[![Build Status](https://travis-ci.org/onaio/ansible-nifi.svg?branch=master)](https://travis-ci.org/onaio/ansible-nifi)
+
 Use this role to install, configure, and manage Apache NiFi.
 Role has been tested with NiFi versions 1.1.x, 1.2.0, 1.3.0 and 1.4.0.
 
