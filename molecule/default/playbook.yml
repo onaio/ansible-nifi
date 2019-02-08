@@ -1,5 +1,12 @@
 ---
 - name: Converge
   hosts: all
+  pre_tasks:
+    - name: Install networking tools needed for testing running service
+      apt:
+        name: net-tools
+        update_cache: yes
+        state: present
+
   roles:
     - role: nifi
