@@ -107,7 +107,7 @@ nifi_needs_keys: False
 nifi_key_pass:
 nifi_store_pass:
 nifi_ca_cert_name: USERTrustRSACertificationAuthority.crt
-nifi_ca_cert_local_path: ../../../inventory/files/{{ nifi_ca_cert_name }}
+nifi_ca_cert_local_path: "files/{{ nifi_ca_cert_name }}"
 nifi_ca_cert_remote_path: "{{ nifi_base_dir }}/{{ nifi_ca_cert_name }}"
 
 # Logback logging levels and settings

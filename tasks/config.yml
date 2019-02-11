@@ -31,6 +31,7 @@
     dest: "{{ nifi_ca_cert_remote_path }}"
     owner: "{{ nifi_user }}"
     group: "{{ nifi_user }}"
+  when: nifi_is_secure
 
 - name: import CA certificate
   command: keytool -importcert -noprompt -file {{ nifi_ca_cert_remote_path }} -alias RSA -keystore {{ nifi_conf_dir }}/cacerts.jks -storepass {{ nifi_truststore_pass }}
