@@ -1,4 +1,5 @@
 import os
+import time
 
 import testinfra.utils.ansible_runner
 
@@ -14,4 +15,5 @@ def test_service(host):
 
 
 def test_deployed_service(host):
+    time.sleep(120)
     assert host.socket("tcp://0.0.0.0:8080").is_listening
