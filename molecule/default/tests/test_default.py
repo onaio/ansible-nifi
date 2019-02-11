@@ -10,7 +10,7 @@ def test_service(host):
     pkg = host.service("nifi")
 
     assert pkg.is_running
-    # assert pkg.version.startswith("")
+    assert pkg.is_enabled
 
 
 def test_deployed_service(host):
