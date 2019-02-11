@@ -9,4 +9,4 @@
         state: present
 
   roles:
-    - role: nifi
+    - role: ansible-nifi
