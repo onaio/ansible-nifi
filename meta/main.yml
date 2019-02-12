@@ -7,7 +7,7 @@ galaxy_info:
   platforms:
     - name: Ubuntu
       verions:
-      - xenial
+        - xenial
     - name: EL
       versions:
         - 6
@@ -19,3 +19,7 @@ galaxy_info:
     - apache
     - nifi
     - dataflow
+dependencies:
+  - role: geerlingguy.java
+    vars:
+      java_packages: "{{ nifi_java_packages }}"

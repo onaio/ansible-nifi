@@ -1,5 +1,6 @@
 ---
 # defaults file for nifi
+nifi_version: 1.5.0
 nifi_major_version: "{{ nifi_version | splitext | first }}"
 
 # installation locations
@@ -7,6 +8,27 @@ nifi_base_dir: /opt/nifi
 nifi_etc_dir: /etc/nifi
 nifi_log_dir: /var/log/nifi
 nifi_pid_dir: /var/run/nifi
+
+# vars file for nifi
+nifi_archive_name: nifi-{{ nifi_version }}-bin.tar.gz
+
+nifi_user: nifi
+nifi_service: /etc/systemd/system/nifi.service
+nifi_server_bin_dir:
+  Ubuntu: "/bin"
+
+nifi_home: "{{ nifi_base_dir }}/nifi-current"
+nifi_conf_dir: "{{ nifi_home }}/conf"
+nifi_nar_dir: "{{ nifi_home }}/lib"
+nifi_work_dir: "{{ nifi_home }}/work"
+nifi_pid_file: "{{ nifi_pid_dir }}/nifi.pid"
+
+# security vars
+nifi_keystore_path: "{{ nifi_conf_dir }}/keystore.jks"
+nifi_truststore_path: "{{ nifi_conf_dir }}/truststore.jks"
+nifi_checksum:
+  1.4.0: sha256:d67c90deb50ed5fee44e7ebf61fbf870f2e97cf1c82ad0f598ff5c4ef905ce99
+  1.5.0: sha256:93712c73e2981228f3b2cdcb56024d4e99a4a2559d6a22fb22e85a616dbf20a3
 
 # whether to restart nifi after making changes; default is True, for a cluster you may wish to disable
 nifi_perform_restart: True
@@ -85,7 +107,7 @@ nifi_needs_keys: False
 nifi_key_pass:
 nifi_store_pass:
 nifi_ca_cert_name: USERTrustRSACertificationAuthority.crt
-nifi_ca_cert_local_path: ../../../inventory/files/{{ nifi_ca_cert_name }}
+nifi_ca_cert_local_path: "files/{{ nifi_ca_cert_name }}"
 nifi_ca_cert_remote_path: "{{ nifi_base_dir }}/{{ nifi_ca_cert_name }}"
 
 # Logback logging levels and settings
@@ -121,3 +143,10 @@ nifi_volume_mount_point: /mnt/nifi-volume
 nifi_volume_device: /dev/xvdf
 nifi_volume_fs_type: ext4
 nifi_volume_mount_opts: defaults,discard
+
+# java dependencies
+nifi_java_packages:
+  - openjdk-8-jdk
+
+# test if the service is publicly accessible
+nifi_test_if_publicly_accessible: false
