@@ -260,3 +260,6 @@ nifi_backup_profiles:
       - "{{ _move_post_restore_dirs_command }}"
       - rm -rf "{{ _temp_backup_dir }}"
       - systemctl start nifi
+        #
+# Custom Nifi scripts from a repository
+nifi_git_scripts: []

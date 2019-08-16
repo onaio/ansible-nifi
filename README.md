@@ -132,6 +132,13 @@ If `nifi_is_secure` is `True` you must also include
     nifi_log_level_org_wali: WARN
     nifi_custom_log_levels: []
 
+    # Nifi custom scripts repositories. An array
+    nifi_git_scripts:
+     - git_repo: # The repository to download from
+       git_branch: # The branch/version to download
+       git_key: # Optional ssh key to use to clone the repository
+       destination: # the destination in the Nifi Home folder to copy the downloaded repository to
+
 ## Backup / Restore
 
 Backup/Restore via duplicity is enabled by default - daily backups are performed and stored locally without any other configuration.  The variable which controls this is:
