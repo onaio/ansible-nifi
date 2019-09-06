@@ -17,3 +17,23 @@ def test_service(host):
 def test_deployed_service(host):
     time.sleep(120)
     assert host.socket("tcp://0.0.0.0:8080").is_listening
+
+
+def test_file_permissions(host):
+    nifiVersion = "1.9.2"
+    nifiBaseDirName = "/opt/nifi"
+    nifiInstalledVerDir = nifiBaseDirName + "/nifi-" + nifiVersion
+
+    appCurrentVersionDir = host.file(nifiBaseDirName + "/nifi-current")
+    assert appCurrentVersionDir.exists
+    assert appCurrentVersionDir.user == "nifi"
+    assert appCurrentVersionDir.group == "nifi"
+    assert appCurrentVersionDir.is_symlink
+    assert appCurrentVersionDir.linked_to == nifiInstalledVerDir
+
+    appInstalledVersionDir = host.file(nifiInstalledVerDir)
+    assert appInstalledVersionDir.exists
+    assert appInstalledVersionDir.user == "nifi"
+    assert appInstalledVersionDir.group == "nifi"
+    assert appInstalledVersionDir.is_directory
+    assert oct(appInstalledVersionDir.mode) == "0o755"

@@ -17,6 +17,8 @@
     src: "{{ nifi_base_dir }}/{{ nifi_archive_name }}"
     dest: "{{ nifi_base_dir }}"
     copy: no
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
 
 - name: Ensure nifi files are world-readable
   file:
@@ -24,6 +26,13 @@
     state: directory
     mode: "a+rX"
     recurse: yes
+
+- name: Make sure the NiFi distribution dir has right permissions
+  file:
+    path: "{{ nifi_base_dir }}/nifi-{{ nifi_version }}"
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+    recurse: true
 
 - name: Ensure nifi symlink
   file:
