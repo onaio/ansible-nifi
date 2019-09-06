@@ -9,7 +9,7 @@
   get_url:
     url: http://archive.apache.org/dist/nifi/{{ nifi_version }}/{{ nifi_archive_name }}
     checksum: "{{ nifi_checksum[nifi_version] }}"
-    dest: "{{ nifi_base_dir }}/{{nifi_archive_name }}"
+    dest: "{{ nifi_base_dir }}/{{ nifi_archive_name }}"
     force: no
 
 - name: Unarchive NiFi distribution
