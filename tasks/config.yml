@@ -1,6 +1,11 @@
 ---
 - name: copy nifi configs
-  template: src="{{ item.src }}" dest="{{ item.dest }}" owner="{{ nifi_user }}" group="{{ nifi_user }}" mode='0644'
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+    mode: "0644"
   with_items:
     - { src: "config/nifi.properties.j2", dest: "{{ nifi_conf_dir }}/nifi.properties" }
     - { src: 'extra-args.properties.j2', dest: "{{ nifi_conf_dir }}/extra-args.properties" }
@@ -30,7 +35,7 @@
     src: "{{ nifi_ca_cert_local_path }}"
     dest: "{{ nifi_ca_cert_remote_path }}"
     owner: "{{ nifi_user }}"
-    group: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
   when: nifi_is_secure
 
 - name: import CA certificate
@@ -42,7 +47,7 @@
 - name: Ensure NiFi owns key files
   file:
     owner: "{{ nifi_user }}"
-    group: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
     path: "{{ item }}"
   tags: [ config, security ]
   with_items:
@@ -51,7 +56,12 @@
   when: nifi_needs_keys
 
 - name: copy nifi configs
-  template: src="{{ item.src }}" dest="{{ item.dest }}" owner="{{ nifi_user }}" group="{{ nifi_user }}" mode='0644'
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+    mode: "0644"
   with_items:
     - { src: "config/authorizers.xml.j2", dest: "{{ nifi_conf_dir }}/authorizers.xml" }
     - { src: "config/bootstrap.conf.j2", dest: "{{ nifi_conf_dir }}/bootstrap.conf" }
@@ -65,7 +75,12 @@
   tags: [ config ]
 
 - name: copy nifi scripts
-  template: src="{{ item.src }}" dest="{{ item.dest }}" owner="{{ nifi_user }}" group="{{ nifi_user }}" mode='0755'
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+    mode: 0755
   with_items:
     - { src: "config/nifi.sh.j2", dest: "{{ nifi_home }}/bin/nifi.sh" }
     - { src: "config/nifi-env.sh.j2", dest: "{{ nifi_home }}/bin/nifi-env.sh" }
@@ -88,7 +103,7 @@
 - name: Have NiFi own the volume directory
   file:
     owner: "{{ nifi_user }}"
-    group: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
     path: "{{ nifi_volume_mount_point }}"
   when: nifi_mount_volume
 

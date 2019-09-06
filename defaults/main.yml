@@ -13,6 +13,7 @@ nifi_pid_dir: /var/run/nifi
 nifi_archive_name: nifi-{{ nifi_version }}-bin.tar.gz
 
 nifi_user: nifi
+nifi_group: "{{ nifi_user }}"
 nifi_service: /etc/systemd/system/nifi.service
 nifi_server_bin_dir:
   Ubuntu: "/bin"
