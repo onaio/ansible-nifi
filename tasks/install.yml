@@ -5,6 +5,15 @@
     state: directory
     mode: 0755
 
+- name: Create nifi group
+  group:
+    name: "{{ nifi_group }}"
+
+- name: Create nifi user
+  user:
+    name: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+
 - name: Download binaries
   get_url:
     url: http://archive.apache.org/dist/nifi/{{ nifi_version }}/{{ nifi_archive_name }}
@@ -66,10 +75,6 @@
     mode: 0755
   when: ansible_distribution == "Amazon" or (ansible_distribution == "CentOS" and ansible_distribution_major_version < "7")
   tags: [ service ]
-
-- name: Create nifi user
-  user:
-    name: "{{ nifi_user }}"
 
 - name: Ensure nifi-required directories exist and are world-readable
   file:
