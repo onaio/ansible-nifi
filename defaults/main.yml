@@ -1,6 +1,6 @@
 ---
 # defaults file for nifi
-nifi_version: 1.5.0
+nifi_version: 1.9.2
 nifi_major_version: "{{ nifi_version | splitext | first }}"
 
 # installation locations
@@ -13,6 +13,7 @@ nifi_pid_dir: /var/run/nifi
 nifi_archive_name: nifi-{{ nifi_version }}-bin.tar.gz
 
 nifi_user: nifi
+nifi_group: "{{ nifi_user }}"
 nifi_service: /etc/systemd/system/nifi.service
 nifi_server_bin_dir:
   Ubuntu: "/bin"
@@ -29,6 +30,7 @@ nifi_truststore_path: "{{ nifi_conf_dir }}/truststore.jks"
 nifi_checksum:
   1.4.0: sha256:d67c90deb50ed5fee44e7ebf61fbf870f2e97cf1c82ad0f598ff5c4ef905ce99
   1.5.0: sha256:93712c73e2981228f3b2cdcb56024d4e99a4a2559d6a22fb22e85a616dbf20a3
+  1.9.2: sha256:8d50bd1a0408878ab41a5fcd18d179e5a293e7d0280ddbe5098a4627aaacbff1
 
 # whether to restart nifi after making changes; default is True, for a cluster you may wish to disable
 nifi_perform_restart: True

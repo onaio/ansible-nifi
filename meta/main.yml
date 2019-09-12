@@ -15,7 +15,7 @@ galaxy_info:
     - name: AmazonLinux
       versions:
         - all
-  categories:
+  galaxy_tags:
     - apache
     - nifi
     - dataflow
