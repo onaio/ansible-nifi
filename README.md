@@ -65,6 +65,7 @@ If `nifi_is_secure` is `True` you must also include
     nifi_input_socket_host:
     nifi_input_socket_port:
     nifi_cluster_node_protocol_port:
+    nifi_web_http_bind_address: 127.0.0.1
     nifi_web_http_port: 8080
     
     # Queue swap settings
