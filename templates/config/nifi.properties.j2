@@ -140,11 +140,11 @@ nifi.web.war.directory=./lib
 nifi.web.http.host=
 nifi.web.http.port=
 nifi.web.http.network.interface.default=
-nifi.web.https.host={{ nifi_web_http_bind_address }}
+nifi.web.https.host={{ nifi_web_http_host }}
 nifi.web.https.port={{ nifi_web_https_port }}
 nifi.web.https.network.interface.default=
 {% else -%}
-nifi.web.http.host={{ nifi_web_http_bind_address }}
+nifi.web.http.host={{ nifi_web_http_host }}
 nifi.web.http.port={{ nifi_web_http_port }}
 nifi.web.http.network.interface.default=
 nifi.web.https.host=
