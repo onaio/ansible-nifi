@@ -62,6 +62,7 @@ nifi_single_node: True
 nifi_input_socket_host:
 nifi_input_socket_port:
 nifi_cluster_node_protocol_port:
+nifi_web_http_host: 127.0.0.1
 nifi_web_http_port: 8080
 nifi_web_https_port: 9443
 
