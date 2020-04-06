@@ -1,6 +1,6 @@
 ---
 # defaults file for nifi
-nifi_version: 1.9.2
+nifi_version: 1.11.4
 nifi_major_version: "{{ nifi_version | splitext | first }}"
 
 # installation locations
