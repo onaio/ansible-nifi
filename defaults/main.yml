@@ -31,6 +31,7 @@ nifi_checksum:
   1.4.0: sha256:d67c90deb50ed5fee44e7ebf61fbf870f2e97cf1c82ad0f598ff5c4ef905ce99
   1.5.0: sha256:93712c73e2981228f3b2cdcb56024d4e99a4a2559d6a22fb22e85a616dbf20a3
   1.9.2: sha256:8d50bd1a0408878ab41a5fcd18d179e5a293e7d0280ddbe5098a4627aaacbff1
+  1.11.4: sha256:5bb68014f818f74b475bcd774ce8c446fc20368ec3062c5ef86e4af9b2ba9aef
 
 # whether to restart nifi after making changes; default is True, for a cluster you may wish to disable
 nifi_perform_restart: True

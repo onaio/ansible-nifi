@@ -20,7 +20,7 @@ def test_deployed_service(host):
 
 
 def test_file_permissions(host):
-    nifiVersion = "1.9.2"
+    nifiVersion = "1.11.4"
     nifiBaseDirName = "/opt/nifi"
     nifiInstalledVerDir = nifiBaseDirName + "/nifi-" + nifiVersion
 
