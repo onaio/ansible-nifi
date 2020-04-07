@@ -1,0 +1,16 @@
+---
+- name: Create Backup Script
+  template:
+    src: "nifi-backup.sh.j2"
+    dest: "{{ nifi_server_bin_dir[ansible_distribution]|default('/usr/bin') }}/nifi-backup.sh"
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+    mode: 755
+
+- name: Create Restore Script
+  template:
+    src: "nifi-restore.sh.j2"
+    dest: "{{ nifi_server_bin_dir[ansible_distribution]|default('/usr/bin') }}/nifi-restore.sh"
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+    mode: 755

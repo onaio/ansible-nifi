@@ -1,0 +1,10 @@
+---
+- name: Converge NiFi A + B
+  hosts: nifi_a,nifi_b
+  roles:
+    - role: ./nifi
+      vars:
+        nifi_web_http_host: "0.0.0.0"
+        nifi_backup_id: "molecule_test"
+        nifi_backup_target: "s3://dev_minio_access_key:dev_minio_secret_key@nifi_s3:9000/bucketa"
+        nifi_backup_s3_using_http: true

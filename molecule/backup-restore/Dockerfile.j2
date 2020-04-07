@@ -1,0 +1,39 @@
+# Molecule managed
+
+{% if item.registry is defined %}
+FROM {{ item.registry.url }}/{{ item.image }}
+{% else %}
+FROM {{ item.image }}
+{% endif %}
+
+{% if item.env is defined %}
+{% for var, value in item.env.items() %}
+{% if value %}
+ENV {{ var }} {{ value }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+RUN apt-get update && apt-get install -y python sudo bash ca-certificates iproute2 wget curl gpg python-apt vim iputils-ping netcat cron
+
+# Add fake systemd
+RUN wget https://github.com/gdraheim/docker-systemctl-replacement/archive/v1.4.3424.tar.gz \
+&& tar zxvpf v1.4.3424.tar.gz \
+&& rm v1.4.3424.tar.gz
+
+RUN cp "docker-systemctl-replacement-1.4.3424/files/docker/systemctl.py" "/usr/bin/systemctl"
+# Required directory for ansible to detect systemd exists
+RUN mkdir -p /run/systemd/system
+RUN systemctl enable --now cron
+
+# Because of https://github.com/f-secure-foundry/usbarmory-debian-base_image/issues/9
+RUN mkdir ~/.gnupg && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
+RUN ping keyserver.ubuntu.com -w 1 || true
+
+# Allow easy mounting of ssh socket
+ENV SSH_AUTH_SOCK /ssh/auth/sock
+
+# Make sure we don't cleanup our apt cache aggressively
+RUN rm /etc/apt/apt.conf.d/docker*
+
+CMD ["/usr/bin/systemctl", "--init", "-vv"]

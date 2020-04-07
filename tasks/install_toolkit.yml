@@ -1,0 +1,30 @@
+---
+- name: Download toolkit binaries
+  get_url:
+    url: http://archive.apache.org/dist/nifi/{{ nifi_version }}/{{ nifi_toolkit_archive_name }}
+    checksum: "{{ nifi_toolkit_checksum[nifi_version] }}"
+    dest: "{{ nifi_base_dir }}/{{ nifi_toolkit_archive_name }}"
+    force: no
+
+- name: Unarchive NiFi Toolkit distribution
+  unarchive:
+    src: "{{ nifi_base_dir }}/{{ nifi_toolkit_archive_name }}"
+    dest: "{{ nifi_base_dir }}"
+    copy: no
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+
+- name: Make sure the NiFi Toolkit distribution dir has right permissions
+  file:
+    path: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}"
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+    recurse: true
+
+- name: Ensure nifi toolkit symlink
+  file:
+    src: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}"
+    dest: "{{ nifi_toolkit_home }}"
+    state: link
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"

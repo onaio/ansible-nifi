@@ -53,6 +53,9 @@
   notify:
     - restart nifi
 
+- include: ./install_toolkit.yml
+  when: nifi_install_toolkit | bool
+
 - name: Create nifi systemd service
   template:
     src: nifi.service.j2
@@ -138,3 +141,6 @@
     group: "{{ nifi_group }}"
     mode: 0755
   with_items: "{{ nifi_extra_dirs | default([]) }}"
+
+- include: ./install_backup_restore.yml
+  when: nifi_backup_enabled | bool

@@ -1,0 +1,15 @@
+---
+- name: Prepare NiFi Backup/Restore
+  hosts: localhost
+  tasks:
+
+    - name: Create local NiFi hostname
+      become: true
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.11\.1'
+        line: 127.0.11.1 nifi.docker
+        owner: root
+        group: root
+        mode: '0644'
+      ignore_errors: yes
