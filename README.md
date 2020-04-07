@@ -33,24 +33,24 @@ If `nifi_is_secure` is `True` you must also include
 
     # Whether to install the nifi toolkit utilities (required for backup/restore)
     nifi_install_toolkit: True
-    
+
     # whether to restart nifi after making changes; default is True, for a cluster you may wish to disable
     nifi_perform_restart: True
-    
+
     # whether to force a restart, useful if another role has made changes (such as updating a custom nar); default is False
     nifi_force_restart: False
-    
+
     # A complete list of IP addresses for each nodes within the nifi cluster
     nifi_nodes_list: []
-    
+
     # nifi_extra_args is a list of key/value pairs that are made available in NiFi, for example:
     nifi_extra_args:
       - file.encoding: "UTF-8"
       - environment: "{{ env }}"
-    
+
     # List of directories for nifi to look in for additional nars.
     nifi_custom_nars: []
-        
+
     nifi_node_jvm_memory: '1024m'
     nifi_java_command: 'java'
     
@@ -72,7 +72,7 @@ If `nifi_is_secure` is `True` you must also include
     nifi_queue_swap_threshold: 20000
     nifi_swap_in_threads: 1
     nifi_swap_out_threads: 4
-    
+
     # Content Repository Settings
     nifi_content_claim_max_flow_files: 100
     nifi_content_claim_max_appendable_size: '10 MB'
@@ -140,7 +140,7 @@ Backup/Restore via duplicity is enabled by default - daily backups are performed
 nifi_backup_enabled: True
 ```
 
-> In order to do a clean backup of the flowfile repository the nifi service must be taken offline - the default time period to do this is midnight. 
+> In order to do a clean backup of the flowfile repository the nifi service must be taken offline - the default time period to do this is midnight system time.
 
 To store backups in S3 instead, something like the following should be set:
 
@@ -163,7 +163,8 @@ To restore nifi onto a clean server, first deploy the nifi role with the appropr
 Dependencies
 ------------
 
-NiFi requires java and Stouts.backup
+- Java >=8 for NiFi
+- Stouts.backup for backups
 
 Example Playbook
 ----------------
