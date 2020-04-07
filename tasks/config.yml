@@ -85,6 +85,14 @@
     - { src: "config/nifi.sh.j2", dest: "{{ nifi_home }}/bin/nifi.sh" }
     - { src: "config/nifi-env.sh.j2", dest: "{{ nifi_home }}/bin/nifi-env.sh" }
 
+- name: Load nifi scripts from script repos
+  git:
+    repo: "{{ item.git_repo }}"
+    version: "{{ item.git_branch }}"
+    keyfile: "{{ item.git_key | default('') }}"
+    dest: "{{ nifi_home }}/{{ item.destination }}"
+  with_items: "{{ nifi_git_scripts }}"
+
 - name: Create file system
   filesystem:
     fstype: "{{ nifi_volume_fs_type }}"
