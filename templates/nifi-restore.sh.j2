@@ -1,0 +1,8 @@
+#!/bin/sh
+
+RESTORE_TYPE=nifi
+if [ -n "$1" ]; then
+	RESTORE_TYPE=nifi_flows
+fi
+
+duply "${RESTORE_TYPE}_restore" pre && duply nifi restore && duply "${RESTORE_TYPE}_restore" post

@@ -1,0 +1,81 @@
+---
+- name: Add Data to NiFi A
+  hosts: nifi_a
+  tasks:
+
+    - name: Wait for NiFi API A
+      uri:
+          url: http://localhost:8080/nifi-api/process-groups/root/process-groups
+          method: GET
+          status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 60
+      delay: 5
+
+    - name: Create a process group
+      uri:
+        url: http://localhost:8080/nifi-api/process-groups/root/process-groups
+        method: POST
+        body: { "revision": { "version" : 0 }, "component": { "name" : "Test Group" } }
+        body_format: json
+        headers:
+          Content-Type: application/json
+        status_code: 201
+      register: result
+
+    - debug:
+        msg: "{{ result }}"
+
+    - name: Remember group id
+      set_fact:
+        test_group_id: "{{ result.json.id }}"
+      delegate_to: "{{ item }}"
+      delegate_facts: True
+      with_items: ["nifi_b", "nifi_a"]
+
+    - name: Create a file in the flowfile repo
+      file:
+        path: "/opt/nifi/nifi-current/flowfile_repository/file_{{ test_group_id }}"
+        state: touch
+        mode: 755
+
+- name: Backup from NiFi A
+  hosts: nifi_a
+  tasks:
+    - shell: nifi-backup.sh
+
+- name: Restore to NiFi B
+  hosts: nifi_b
+  tasks:
+    - shell: nifi-restore.sh
+
+- name: Check NiFi B
+  hosts: nifi_b
+  tasks:
+
+    - name: Wait for NiFi API B
+      uri:
+          url: http://localhost:8080/nifi-api/process-groups/root/process-groups
+          method: GET
+          status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 60
+      delay: 5
+
+    - uri:
+        url: http://localhost:8080/nifi-api/process-groups/{{ test_group_id }}
+        method: GET
+        headers:
+          Content-Type: application/json
+
+    - name: Check flowfile repo file exists
+      stat:
+        path: "/opt/nifi/nifi-current/flowfile_repository/file_{{ test_group_id }}"
+      register: result
+
+    - name: Fail if file doesn't exist
+      fail:
+        msg: "Flowfile repository file /opt/nifi/nifi-current/flowfile_repository/file_{{ test_group_id }} does not exist!"
+      when: not (result.stat.exists | bool)

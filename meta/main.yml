@@ -23,3 +23,7 @@ dependencies:
   - role: geerlingguy.java
     vars:
       java_packages: "{{ nifi_java_packages }}"
+  - role: Stouts.backup
+    vars:
+      backup_profiles: "{{ nifi_backup_profiles }}"
+    when: nifi_backup_enabled | bool

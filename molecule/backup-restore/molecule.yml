@@ -1,0 +1,58 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: nifi_s3
+    image: minio/minio:latest
+    dockerfile: Dockerfile.minio.j2
+    command: server /mnt/data
+    env:
+      MINIO_ACCESS_KEY: dev_minio_access_key
+      MINIO_SECRET_KEY: dev_minio_secret_key
+    networks:
+      - name: nifi_network
+    published_ports:
+      - 127.0.11.1:9000:9000
+  - name: nifi_a
+    image: ubuntu:18.04
+    override_command: False
+    networks:
+      - name: nifi_network
+    published_ports:
+      - 127.0.11.1:8080:8080
+    volumes:
+      - nifi_a_cache:/var/cache
+      - nifi_a_opt:/opt
+  - name: nifi_b
+    image: ubuntu:18.04
+    override_command: False
+    networks:
+      - name: nifi_network
+    published_ports:
+      - 127.0.11.1:8090:8080
+    volumes:
+      - nifi_b_cache:/var/cache
+      - nifi_b_opt:/opt
+provisioner:
+  name: ansible
+verifier:
+  name: ansible
+scenario:
+  name: backup-restore
+  test_sequence:
+    # - lint
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    # - idempotence
+    # - side_effect
+    - verify
+    - cleanup
+    - destroy
+

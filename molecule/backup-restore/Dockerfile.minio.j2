@@ -1,0 +1,9 @@
+# Molecule managed
+
+{% if item.registry is defined %}
+FROM {{ item.registry.url }}/{{ item.image }}
+{% else %}
+FROM {{ item.image }}
+{% endif %}
+
+RUN mkdir -p /mnt/data/bucketa && mkdir -p /mnt/data/bucketb && mkdir -p /mnt/data/bucketc

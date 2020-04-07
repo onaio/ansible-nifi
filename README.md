@@ -9,10 +9,7 @@ Role has been tested with NiFi versions 1.1.x, 1.2.0, 1.3.0 and 1.4.0.
 Requirements
 ------------
 
-Prior to executing this role, the NiFi distribution must be accssible on the target system at
-```{{ nifi_base_dir }}/nifi-{{ nifi_version }}/```
-  - if RPM, the RPM must be installed
-  - if tar.gz, it must be unarchived
+  - `molecule[docker]` v3 or compatible
 
 Role Variables
 --------------
@@ -31,8 +28,11 @@ If `nifi_is_secure` is `True` you must also include
     nifi_etc_dir: /etc/nifi
     nifi_log_dir: /var/log/nifi
     nifi_pid_dir: /var/run/nifi
-    
+
 ### Other Default variables are listed below:
+
+    # Whether to install the nifi toolkit utilities (required for backup/restore)
+    nifi_install_toolkit: True
 
     # whether to restart nifi after making changes; default is True, for a cluster you may wish to disable
     nifi_perform_restart: True
@@ -42,15 +42,15 @@ If `nifi_is_secure` is `True` you must also include
 
     # A complete list of IP addresses for each nodes within the nifi cluster
     nifi_nodes_list: []
-    
+
     # nifi_extra_args is a list of key/value pairs that are made available in NiFi, for example:
     nifi_extra_args:
       - file.encoding: "UTF-8"
       - environment: "{{ env }}"
-    
+
     # List of directories for nifi to look in for additional nars.
     nifi_custom_nars: []
-        
+
     nifi_node_jvm_memory: '1024m'
     nifi_java_command: 'java'
     
@@ -108,7 +108,7 @@ If `nifi_is_secure` is `True` you must also include
     # Security settings
     nifi_initial_admin:
     nifi_is_secure: False
-
+    
     # Logback logging levels and settings
     nifi_log_app_file_retention: 10
     nifi_log_user_file_retention: 10
@@ -132,10 +132,39 @@ If `nifi_is_secure` is `True` you must also include
     nifi_log_level_org_wali: WARN
     nifi_custom_log_levels: []
 
+## Backup / Restore
+
+Backup/Restore via duplicity is enabled by default - daily backups are performed and stored locally without any other configuration.  The variable which controls this is:
+
+```yaml
+nifi_backup_enabled: True
+```
+
+> In order to do a clean backup of the flowfile repository the nifi service must be taken offline - the default time period to do this is midnight system time.
+
+To store backups in S3 instead, something like the following should be set:
+
+```yaml
+nifi_backup_target: "s3://{{ vault_s3_aws_access_key }}:{{ vault_s3_aws_secret_key }}@s3.eu-west-1.amazonaws.com/{{ project_name }}-nifi-backup"
+nifi_backup_schedule: "0 0 * * 0"
+nifi_backup_max_age: "7D"
+```
+
+See [Stouts.backup](https://github.com/Stouts/Stouts.backup) for more information about the options available.
+
+When enabled, `nifi-backup.sh` and `nifi-restore.sh` scripts are installed in the system `$PATH` to manually trigger a backup or restore.
+
+### Restoring on a new server
+
+To restore nifi onto a clean server, first deploy the nifi role with the appropriate backup target, creating the restore script.  Then just run `nifi-restore.sh` on the new server.
+
+> The variable `nifi_backup_id` controls which backup files in a bucket that a server will use - if there is only one host in the `nifi` group it will always be `0`.  A project can also explicitly set `nifi_backup_id` to something more meaningful - the idea is to support multi-nifi deployments easily in the future. 
+
 Dependencies
 ------------
 
-NiFi requires java
+- Java >=8 for NiFi
+- Stouts.backup for backups
 
 Example Playbook
 ----------------
@@ -149,17 +178,8 @@ Install and configure NiFi
           nifi_node_jvm_memory: '10240M'
           nifi_custom_nars: [ '/opt/extra-nars' ]
           nifi_single_node: False
-          nifi_nodes_list: ['nifi-node-1', 'nifi-node-2']      
-      pre_tasks:
-        - name: Upload NiFi distribution (tar.gz) from localhost
-          copy:
-            src: nifi-1.2.0-bin.tar.gz
-            dest: /opt/nifi
-        - name: Unarchive NiFi distribution
-          unarchive:
-            src: /opt/nifi/nifi-1.2.0-bin.tar.gz
-            dest: /opt/nifi
-            copy: no
+          nifi_nodes_list: ['nifi-node-1', 'nifi-node-2']
+          nifi_backup_target: "s3://{{ vault_s3_aws_access_key }}:{{ vault_s3_aws_secret_key }}@s3.eu-west-1.amazonaws.com/project-nifi-backup"
       roles:
         - role: nifi
           nifi_version: 1.2.0
