@@ -1,0 +1,38 @@
+---
+- name: Set Parameter Context variable
+  set_fact:
+    parameter_context: "{{ item }}"
+- name: Create Parameter Context
+  shell: "./bin/cli.sh nifi create-param-context -pcn '{{ parameter_context.name }}' -pcd '{{ parameter_context.description }}' -u {{ nifi_api_base_url }}"
+  register: parameter_context_result
+  environment:
+    JAVA_HOME: "{{ nifi_java_home }}"
+  args:
+    chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
+  ignore_errors: true  # we expect errors when attempting to create an existing param
+- name: Set parameter values for new Parameter Context
+  shell: "./bin/cli.sh nifi set-param -pcid '{{ parameter_context_result.stdout }}' -pn '{{ inner_item.name }}' -pv '{{ inner_item.value }}' -pd '{{ inner_item.description }}' -ps {{ inner_item.sensitive }} -u {{ nifi_api_base_url }}"
+  args:
+    chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
+  loop: '{{ parameter_context.parameters }}'
+  loop_control:
+    loop_var: inner_item
+  when:
+    parameter_context_result.rc == 0
+- name: Update Parameter Context
+  block:
+    - name: Get id of existing Parameter Context
+      shell: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name }}") | .id' {{ nif_all_parameter_contexts_result_file }}
+      register: parameter_id_result
+      failed_when: parameter_id_result.stdout == ""
+      args:
+        chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
+    - name: Set parameter values in Parameter Context
+      shell: "./bin/cli.sh nifi set-param -pcid '{{ parameter_id_result.stdout }}' -pn '{{ inner_item.name }}' -pv '{{ inner_item.value }}' -pd '{{ inner_item.description }}' -ps {{ inner_item.sensitive }} -u {{ nifi_api_base_url }}"
+      args:
+        chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
+      loop: '{{ parameter_context.parameters }}'
+      loop_control:
+        loop_var: inner_item
+  when:
+    - parameter_context_result.rc > 0

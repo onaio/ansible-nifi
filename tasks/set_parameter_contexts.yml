@@ -2,27 +2,16 @@
 - name: Install jq
   include: install_jq.yml
 - name: Get existing Parameter Contexts
-  shell: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }}"
+  shell: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"
   register: all_parameter_contexts_result
-- name: Remove JAVA_HOME error
-  set_fact:
-    all_parameter_contexts: "{{ all_parameter_contexts.stdout | replace('cli.sh: JAVA_HOME not set; results may vary', '') }}"
+  environment:
+    JAVA_HOME: "{{ nifi_java_home }}"
+  args:
+    chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
+- name: Set all_parameter_contexts fact
+  copy:
+    content: "{{ all_parameter_contexts_result.stdout }}"
+    dest: "{{ nif_all_parameter_contexts_result_file }}"
 - name: Configure Parameter Contexts
-  block:
-    - name: Create Parameter Context
-      shell: "./bin/cli.sh nifi create-param-context -pcn '{{ outer_item.name }}' -pcd '{{ outer_item.description }}' -u {{ nifi_api_base_url }}"
-      register: parameter_context_result
-    - name: Update Parameter Context
-      block:
-        - name: Get id of existing Parameter Context
-          shell: "echo {{ all_parameter_contexts_result }} | jq '.parameterContexts[] | select(.component.name == '{{ outer_item.name }}'') | .id'"
-          register: parameter_context_result
-          failed_when: parameter_context_result.stdout == ""
-      when:
-        - parameter_context_result.rc > 0
-    - name: Set parameter values in Parameter Context
-      shell: "./bin/cli.sh nifi set-param -pcid {{ parameter_context_result.stdout }} -pn '{{ item.name }}' -pv '{{ item.value }}' -pd '{{ item.description }}' -ps {{ item.sensitive }} -u {{ nifi_api_base_url }}"
-      loop: '{{ outer_item.parameters }}'
-  loop: '{{ nifi_parameter_contexts }}'
-  loop_control:
-    loop_var: outer_item
+  include_tasks: parameter_context_tasks.yml
+  with_items: '{{ nifi_parameter_contexts }}'
