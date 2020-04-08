@@ -142,7 +142,7 @@ If `nifi_is_secure` is `True` you must also include
     # NiFi parameter contexts
     nifi_set_parameter_contexts: true
     nifi_java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
-    nif_all_parameter_contexts_result_file: /tmp/all_parameter_contexts_result.json
+    nifi_all_parameter_contexts_result_file: /tmp/all_parameter_contexts_result.json
     nifi_api_base_url: http://localhost:8080/nifi-api
     nifi_parameter_contexts:
 
@@ -154,7 +154,7 @@ You can set NiFi parameter contexts like so:
 ```yml
 nifi_set_parameter_contexts: true
 nifi_java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
-nif_all_parameter_contexts_result_file: /tmp/all_parameter_contexts_result.json
+nifi_all_parameter_contexts_result_file: /tmp/all_parameter_contexts_result.json
 nifi_api_base_url: http://localhost:8080/nifi-api
 nifi_parameter_contexts:
   - name: "Test Group"
