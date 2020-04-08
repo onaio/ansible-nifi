@@ -43,14 +43,15 @@
 - name: Backup from NiFi A
   hosts: nifi_a
   tasks:
-    - shell: nifi-backup.sh
+    - shell: nifi-backup.sh unsafe
+    - shell: nifi-backup.sh safe
 
-- name: Restore to NiFi B
+- name: Restore Flows to NiFi B
   hosts: nifi_b
   tasks:
-    - shell: nifi-restore.sh
+    - shell: nifi-restore.sh unsafe flows
 
-- name: Check NiFi B
+- name: Check Flows on NiFi B
   hosts: nifi_b
   tasks:
 
@@ -70,12 +71,47 @@
         headers:
           Content-Type: application/json
 
-    - name: Check flowfile repo file exists
+    - name: Check flowfile exists
       stat:
         path: "/opt/nifi/nifi-current/flowfile_repository/file_{{ test_group_id }}"
       register: result
 
-    - name: Fail if file doesn't exist
+    - name: Fail if flowfile exists
+      fail:
+        msg: "Flowfile repository file /opt/nifi/nifi-current/flowfile_repository/file_{{ test_group_id }} exists but should not!"
+      when: (result.stat.exists | bool)
+
+- name: Restore Full to NiFi B
+  hosts: nifi_b
+  tasks:
+    - shell: nifi-restore.sh safe full
+
+- name: Check Flows and Repositories on NiFi B
+  hosts: nifi_b
+  tasks:
+
+    - name: Wait for NiFi API B
+      uri:
+          url: http://localhost:8080/nifi-api/process-groups/root/process-groups
+          method: GET
+          status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 60
+      delay: 5
+
+    - uri:
+        url: http://localhost:8080/nifi-api/process-groups/{{ test_group_id }}
+        method: GET
+        headers:
+          Content-Type: application/json
+
+    - name: Check flowfile exists
+      stat:
+        path: "/opt/nifi/nifi-current/flowfile_repository/file_{{ test_group_id }}"
+      register: result
+
+    - name: Fail if flowfile doesn't exist
       fail:
         msg: "Flowfile repository file /opt/nifi/nifi-current/flowfile_repository/file_{{ test_group_id }} does not exist!"
       when: not (result.stat.exists | bool)

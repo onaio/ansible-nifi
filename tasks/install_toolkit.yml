@@ -28,3 +28,11 @@
     state: link
     owner: "{{ nifi_user }}"
     group: "{{ nifi_group }}"
+
+- name: Create Java Home Helper Script
+  template:
+    src: "with-java-home.sh.j2"
+    dest: "{{ nifi_server_bin_dir[ansible_distribution]|default('/usr/bin') }}/with-java-home.sh"
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+    mode: 755

@@ -169,17 +169,23 @@ nifi_test_if_publicly_accessible: false
 
 nifi_backup_enabled: True
 
-nifi_backup_schedule: "0 0 * * 0"
+nifi_backup_id: "nifi.{% if 'nifi' in groups %}{{ groups['nifi'].index(inventory_hostname) + 1 }}{% else %}{{ groups['all'].index(inventory_hostname) + 1 }}{% endif %}"
+
+nifi_backup_schedule: "0 0 * * *" # Midnight
 nifi_backup_max_age: "7D"
+
+nifi_safe_backup_schedule: "0 21 * * 1" # 9PM Monday
+nifi_safe_backup_max_age: "30D"
+
 nifi_backup_target: "file:///var/backup/nifi"
 nifi_backup_s3_using_http: False
 
-nifi_backup_sources: "{{ [nifi_etc_dir, nifi_conf_dir, nifi_database_repository, nifi_flowfile_repository] + nifi_content_repositories + nifi_provenance_repositories }}"
-nifi_flows_backup_sources: "{{ [nifi_etc_dir, nifi_conf_dir, nifi_database_repository] }}"
-nifi_flowfiles_backup_sources: "{{ [nifi_flowfile_repository] + nifi_content_repositories + nifi_provenance_repositories }}"
+nifi_flow_backup_sources: "{{ [nifi_etc_dir, nifi_conf_dir] }}"
+nifi_repository_backup_sources: "{{ [nifi_flowfile_repository, nifi_database_repository] + nifi_content_repositories + nifi_provenance_repositories }}"
+nifi_backup_sources: "{{ nifi_flow_backup_sources + nifi_repository_backup_sources }}"
 
-_nifi_backup_id: "{% if 'nifi' in groups %}{{ nifi_backup_id | default(groups['nifi'].index(inventory_hostname) + 1) }}{% else %}{{ nifi_backup_id | default(groups['all'].index(inventory_hostname) + 1) }}{% endif %}"
-_nifi_backup_target: "{{ nifi_backup_target }}/nifi.{{ _nifi_backup_id }}"
+_nifi_backup_target: "{{ nifi_backup_target }}/{{ nifi_backup_id }}.unsafe"
+_nifi_safe_backup_target: "{{ nifi_backup_target }}/{{ nifi_backup_id }}.safe"
 
 #
 # All this crazyness is necessary because duplicity really doesn't like cloning more than one directory tree
@@ -189,21 +195,38 @@ _nifi_backup_target: "{{ nifi_backup_target }}/nifi.{{ _nifi_backup_id }}"
 _temp_backup_dir: "/tmp/backup/nifi"
 _pre_restore_dir: "/tmp/pre_restore/nifi"
 
-_populate_backup_dir_command: "{% for source in nifi_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
+#
+# Backup Commands
+#
+
+_ensure_empty_backup_dir_command: rm -rf "{{ _temp_backup_dir }}" || mkdir -p "{{ _temp_backup_dir }}"
+
+_nifi_link_for_backup_command: "{% for source in nifi_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
    {% set source_parent = (source | dirname) %}
    mkdir -p \"{{ _temp_backup_dir }}{{ source_parent }}\" && \\\n
    ln -s \"{{ source }}\" \"{{ _temp_backup_dir }}{{ source }}\"
    {% endfor %}"
-_move_pre_restore_dirs_command: "{% for source in nifi_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
+
+_cleanup_backup_dir_command: rm -rf "{{ _temp_backup_dir }}"
+
+#
+# Restore Commands
+#
+
+_ensure_empty_prerestore_dir_command: rm -rf "{{ _pre_restore_dir }}" || mkdir -p "{{ _pre_restore_dir }}"
+
+_nifi_save_prerestore_command: "{% for source in nifi_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
    {% set source_parent = (source | dirname) %}
    mkdir -p \"{{ _pre_restore_dir }}{{ source_parent }}\" && \\\n
    mv \"{{ source }}\" \"{{ _pre_restore_dir }}{{ source_parent }}\"
    {% endfor %}"
-_move_post_restore_dirs_command: "{% for source in nifi_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
+
+_nifi_flows_restore_command: "{% for source in nifi_flow_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
    mv \"{{ _temp_backup_dir }}{{ source }}\" \"{{ source }}\"
    {% endfor %}"
-_clear_post_restore_flowfiles_dirs_command: "{% for source in nifi_flowfiles_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
-   rm -rf \"{{ _temp_backup_dir }}{{ source }}/\"* || true
+
+_nifi_repositories_restore_command: "{% for source in nifi_repository_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
+   mv \"{{ _temp_backup_dir }}{{ source }}\" \"{{ source }}\"
    {% endfor %}"
 
 _nifi_backup_s3_param: "{% if nifi_backup_s3_using_http | bool %}DUPL_PARAMS=\"$DUPL_PARAMS --s3-unencrypted-connection\"{% endif %}"
@@ -211,7 +234,7 @@ _nifi_copy_links_param: "DUPL_PARAMS=\"$DUPL_PARAMS --copy-links\""
 
 nifi_backup_profiles:
 
-  - name: nifi
+  - name: nifi_unsafe
     schedule: "{{ nifi_backup_schedule }}"
     max_age: "{{ nifi_backup_max_age }}"
     source:  "{{ _temp_backup_dir }}"
@@ -220,30 +243,27 @@ nifi_backup_profiles:
       - "{{ _nifi_backup_s3_param }}"
       - "{{ _nifi_copy_links_param }}"
     pre_actions:
-      - systemctl stop nifi
-      - rm -rf "{{ _temp_backup_dir }}" || mkdir -p "{{ _temp_backup_dir }}"
-      - "{{ _populate_backup_dir_command }}"
+      - "{{ _ensure_empty_backup_dir_command }}"
+      - "{{ _nifi_link_for_backup_command }}"
     post_actions:
-      - rm -rf "{{ _temp_backup_dir }}"
-      - systemctl start nifi
+      - "{{ _cleanup_backup_dir_command }}"
 
-  - name: nifi_restore
+  - name: nifi_safe
+    schedule: "{{ nifi_safe_backup_schedule }}"
+    max_age: "{{ nifi_safe_backup_max_age }}"
     source:  "{{ _temp_backup_dir }}"
-    target: "{{ _nifi_backup_target }}"
+    target: "{{ _nifi_safe_backup_target }}"
     params:
       - "{{ _nifi_backup_s3_param }}"
       - "{{ _nifi_copy_links_param }}"
     pre_actions:
       - systemctl stop nifi
-      - rm -rf "{{ _pre_restore_dir }}" || mkdir -p "{{ _pre_restore_dir }}"
-      - "{{ _move_pre_restore_dirs_command }}"
-      - rm -rf "{{ _temp_backup_dir }}" || true
+      - "{{ _ensure_empty_backup_dir_command }}"
+      - "{{ _nifi_link_for_backup_command }}"
     post_actions:
-      - "{{ _move_post_restore_dirs_command }}"
-      - rm -rf "{{ _temp_backup_dir }}"
+      - "{{ _cleanup_backup_dir_command }}"
       - systemctl start nifi
 
-  # Flows-only restore
   - name: nifi_flows_restore
     source:  "{{ _temp_backup_dir }}"
     target: "{{ _nifi_backup_target }}"
@@ -252,13 +272,29 @@ nifi_backup_profiles:
       - "{{ _nifi_copy_links_param }}"
     pre_actions:
       - systemctl stop nifi
-      - rm -rf "{{ _pre_restore_dir }}" || mkdir -p "{{ _pre_restore_dir }}"
-      - "{{ _move_pre_restore_dirs_command }}"
-      - rm -rf "{{ _temp_backup_dir }}" || true
+      - "{{ _ensure_empty_prerestore_dir_command }}"
+      - "{{ _nifi_save_prerestore_command }}"
+      - "{{ _ensure_empty_backup_dir_command }} || true"
     post_actions:
-      - "{{ _clear_post_restore_flowfiles_dirs_command }}"
-      - "{{ _move_post_restore_dirs_command }}"
-      - rm -rf "{{ _temp_backup_dir }}"
+      - "{{ _nifi_flows_restore_command }}"
+      - "{{ _cleanup_backup_dir_command }}"
+      - systemctl start nifi
+
+  - name: nifi_full_restore
+    source:  "{{ _temp_backup_dir }}"
+    target: "{{ _nifi_backup_target }}"
+    params:
+      - "{{ _nifi_backup_s3_param }}"
+      - "{{ _nifi_copy_links_param }}"
+    pre_actions:
+      - systemctl stop nifi
+      - "{{ _ensure_empty_prerestore_dir_command }}"
+      - "{{ _nifi_save_prerestore_command }}"
+      - "{{ _ensure_empty_backup_dir_command }} || true"
+    post_actions:
+      - "{{ _nifi_flows_restore_command }}"
+      - "{{ _nifi_repositories_restore_command }}"
+      - "{{ _cleanup_backup_dir_command }}"
       - systemctl start nifi
         #
 # Custom Nifi scripts from a repository

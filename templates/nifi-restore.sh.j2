@@ -1,8 +1,11 @@
 #!/bin/sh
-
-RESTORE_TYPE=nifi
-if [ -n "$1" ]; then
-	RESTORE_TYPE=nifi_flows
+if [ -z "$1" ]; then
+    echo "A nifi backup type of 'safe' or 'unsafe' must be specified!"
+    exit 1
+fi
+if [ -z "$2" ]; then
+    echo "A nifi restore type of 'flows' or 'full' must be specified!"
+    exit 1
 fi
 
-duply "${RESTORE_TYPE}_restore" pre && duply nifi restore && duply "${RESTORE_TYPE}_restore" post
+duply "nifi_$2_restore" pre && duply "nifi_$1" restore && duply "nifi_$2_restore" post

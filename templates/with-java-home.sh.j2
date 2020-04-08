@@ -1,0 +1,3 @@
+#!/bin/sh
+export JAVA_HOME="$(java -XshowSettings:properties -version 2>&1 | grep 'java.home' | sed 's/.*=\s*//')"
+"$@"

@@ -147,14 +147,21 @@ Backup/Restore via duplicity is enabled by default - daily backups are performed
 nifi_backup_enabled: True
 ```
 
-> In order to do a clean backup of the flowfile repository the nifi service must be taken offline - the default time period to do this is midnight system time.
+> By default, unsafe backups are taken of nifi at midnight system time every day.  Because nifi stays online, there is a small chance the flowfiles or even the flows
+> could be corrupted in the backup if they're being modified at the same time.
+> In order to do a safe backup of the flowfile repository the nifi service must be taken offline - this is disruptive so is scheduled for just once-a-week.
+> The default time period to do safe backups is every Monday at 9PM system time, which is a weekday and outside working hours in most of the world assuming GMT.
+> To disable safe backups set `nifi_safe_backup_schedule` to `false` or `null`.
 
 To store backups in S3 instead, something like the following should be set:
 
 ```yaml
 nifi_backup_target: "s3://{{ vault_s3_aws_access_key }}:{{ vault_s3_aws_secret_key }}@s3.eu-west-1.amazonaws.com/{{ project_name }}-nifi-backup"
-nifi_backup_schedule: "0 0 * * 0"
+nifi_backup_schedule: "0 0 * * *" # Midnight
 nifi_backup_max_age: "7D"
+
+nifi_safe_backup_schedule: "0 21 * * 1" # 9PM Monday
+nifi_safe_backup_max_age: "30D"
 ```
 
 See [Stouts.backup](https://github.com/Stouts/Stouts.backup) for more information about the options available.
