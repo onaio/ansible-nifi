@@ -3,6 +3,13 @@
   tags: install
 - include: config.yml
   tags: config
+- include: set_parameter_contexts.yml
+  when:
+    - nifi_set_parameter_contexts | bool
+    - nifi_install_toolkit | bool  # toolkit must be installed
+  tags:
+    - config
+    - parameter_contexts
 - include: test.yml
-  when: nifi_test_if_publicly_accessible
+  when: nifi_test_if_publicly_accessible | bool
   tags: test
