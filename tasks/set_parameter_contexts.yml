@@ -11,7 +11,7 @@
 - name: Set all_parameter_contexts fact
   copy:
     content: "{{ all_parameter_contexts_result.stdout }}"
-    dest: "{{ nif_all_parameter_contexts_result_file }}"
+    dest: "{{ nifi_all_parameter_contexts_result_file }}"
 - name: Configure Parameter Contexts
   include_tasks: parameter_context_tasks.yml
   with_items: '{{ nifi_parameter_contexts }}'
