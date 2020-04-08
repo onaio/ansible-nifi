@@ -314,3 +314,19 @@ nifi_backup_profiles:
         #
 # Custom Nifi scripts from a repository
 nifi_git_scripts: []
+
+# Parameter Contexts
+nifi_set_parameter_contexts: true
+nifi_api_base_url: http://localhost:8080/nifi-api
+nifi_parameter_contexts:
+  - name: "Mosh Test"
+    description: "Just testing"
+    parameters:
+      - name: "xxxx"
+        description: "what is this?"
+        value: "secret"
+        sensitive: true
+      - name: "yyy"
+        description: "what is this?"
+        value: "secret"
+        sensitive: true
