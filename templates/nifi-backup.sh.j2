@@ -1,3 +1,6 @@
 #!/bin/sh
-
-duply nifi backup
+if [ -z "$1" ]; then
+    echo "A nifi backup type of 'safe' or 'unsafe' must be specified!"
+    exit 1
+fi
+duply "nifi_$1" backup
