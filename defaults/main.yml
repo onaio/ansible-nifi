@@ -178,6 +178,8 @@ nifi_safe_backup_schedule: "0 21 * * 1" # 9PM Monday
 nifi_safe_backup_max_age: "30D"
 
 nifi_backup_target: "file:///var/backup/nifi"
+nifi_backup_target_user: null
+nifi_backup_target_pass: null
 nifi_backup_s3_using_http: False
 
 nifi_flow_backup_sources: "{{ [nifi_etc_dir, nifi_conf_dir] }}"
@@ -231,6 +233,7 @@ _nifi_repositories_restore_command: "{% for source in nifi_repository_backup_sou
 
 _nifi_backup_s3_param: "{% if nifi_backup_s3_using_http | bool %}DUPL_PARAMS=\"$DUPL_PARAMS --s3-unencrypted-connection\"{% endif %}"
 _nifi_copy_links_param: "DUPL_PARAMS=\"$DUPL_PARAMS --copy-links\""
+_nifi_default_target_pass_param: "{% if not nifi_backup_target_user %}TARGET_PASS=''{% endif %}"
 
 nifi_backup_profiles:
 
@@ -239,9 +242,12 @@ nifi_backup_profiles:
     max_age: "{{ nifi_backup_max_age }}"
     source:  "{{ _temp_backup_dir }}"
     target: "{{ _nifi_backup_target }}"
+    target_user: "{{ nifi_backup_target_user }}"
+    target_pass: "{{ nifi_backup_target_pass }}"
     params:
       - "{{ _nifi_backup_s3_param }}"
       - "{{ _nifi_copy_links_param }}"
+      - "{{ _nifi_default_target_pass_param }}"
     pre_actions:
       - "{{ _ensure_empty_backup_dir_command }}"
       - "{{ _nifi_link_for_backup_command }}"
@@ -253,9 +259,12 @@ nifi_backup_profiles:
     max_age: "{{ nifi_safe_backup_max_age }}"
     source:  "{{ _temp_backup_dir }}"
     target: "{{ _nifi_safe_backup_target }}"
+    target_user: "{{ nifi_backup_target_user }}"
+    target_pass: "{{ nifi_backup_target_pass }}"
     params:
       - "{{ _nifi_backup_s3_param }}"
       - "{{ _nifi_copy_links_param }}"
+      - "{{ _nifi_default_target_pass_param }}"
     pre_actions:
       - systemctl stop nifi
       - "{{ _ensure_empty_backup_dir_command }}"
@@ -267,9 +276,12 @@ nifi_backup_profiles:
   - name: nifi_flows_restore
     source:  "{{ _temp_backup_dir }}"
     target: "{{ _nifi_backup_target }}"
+    target_user: "{{ nifi_backup_target_user }}"
+    target_pass: "{{ nifi_backup_target_pass }}"
     params:
       - "{{ _nifi_backup_s3_param }}"
       - "{{ _nifi_copy_links_param }}"
+      - "{{ _nifi_default_target_pass_param }}"
     pre_actions:
       - systemctl stop nifi
       - "{{ _ensure_empty_prerestore_dir_command }}"
@@ -283,9 +295,12 @@ nifi_backup_profiles:
   - name: nifi_full_restore
     source:  "{{ _temp_backup_dir }}"
     target: "{{ _nifi_backup_target }}"
+    target_user: "{{ nifi_backup_target_user }}"
+    target_pass: "{{ nifi_backup_target_pass }}"
     params:
       - "{{ _nifi_backup_s3_param }}"
       - "{{ _nifi_copy_links_param }}"
+      - "{{ _nifi_default_target_pass_param }}"
     pre_actions:
       - systemctl stop nifi
       - "{{ _ensure_empty_prerestore_dir_command }}"
