@@ -36,3 +36,21 @@
     owner: "{{ nifi_user }}"
     group: "{{ nifi_group }}"
     mode: 755
+
+- name: Create NiFi Parameters Helper Script
+  template:
+    src: "set-nifi-parameters.py.j2"
+    dest: "{{ nifi_toolkit_home }}/bin/set-nifi-parameters.py"
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+    mode: 755
+
+- name: Set NiFi Parameters using Helper Script
+  shell:
+    cmd: "with-java-home.sh ./set-nifi-parameters.py --variables-json '{{ nifi_parameters | to_json }}'"
+    chdir: "{{ nifi_toolkit_home }}/bin"
+  when: (nifi_parameters | length) > 0
+  register: parameter_result
+
+- debug:
+    msg: "{{ parameter_result.stdout }}"

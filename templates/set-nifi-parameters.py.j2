@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+
+#
+# Use only bog-standard python3 stuff here to avoid dependency issues
+#
+
+import subprocess
+import json
+import re
+import argparse
+
+class ToolkitCli:
+
+	"""
+	Helper class to drive CLI
+	"""
+
+	def __init__(self, cli_exe=None, base_url="http://localhost:8080/nifi-api", verbose=False):
+		
+		self.cli_exe = cli_exe
+		if self.cli_exe is None:
+			self.cli_exe = './cli.sh'
+		if isinstance(self.cli_exe, str):
+			self.cli_exe = [self.cli_exe]
+
+		self.base_url = base_url
+		self.verbose = verbose
+
+	def _check_output(self, *args, **kwargs):
+		if self.verbose: print(" " * 2 + " ".join(*args))
+		return subprocess.check_output(*args, **kwargs)
+
+	def nifi(self, command, *args):
+		return self._check_output(self.cli_exe + ["nifi", command, "-u", self.base_url, "-ot", "json"] + list(args))
+
+	def nifi_get_parameter_contexts(self):
+		return json.loads(self.nifi('list-param-contexts'))['parameterContexts']
+
+	def nifi_set_parameter(self, context_id, name, value, description, sensitive):
+		self.nifi('set-param', '-pcid', str(context_id), '-pn', str(name), '-pv', str(value), '-pd', str(description), '-ps', 'true' if sensitive else 'false')
+
+def reset_parameter_value(cli, context, parameter, value):
+
+	context_id = context['id']
+	context_name = context['component']['name']
+	parameter_name = parameter['parameter']['name']
+	parameter_value = parameter['parameter']['value']
+	parameter_desc = parameter['parameter']['description']
+	parameter_sensitive = parameter['parameter']['sensitive']
+
+	if str(value) == parameter_value:
+		print(f"Value of parameter {context_name}/{parameter_name} is currently set to {value}.")
+		return
+
+	print(f"Resetting parameter {context_name}/{parameter_name} to value {value} (previously {parameter_value})...")
+	cli.nifi_set_parameter(context_id, parameter_name, value, parameter_desc, parameter_sensitive)
+
+#
+# Reset parameters based on a variable file
+#
+
+def reset_variable_parameters(cli, variables):
+	for context, parameter, variable_name in visit_variable_parameters(cli):
+		if variable_name in variables:
+			reset_parameter_value(cli, context, parameter, variables[variable_name])
+		else:
+			print(f"Warning: Variable {variable_name} for parameter {parameter['parameter']['name']} was not found, skipping.")
+
+def visit_variable_parameters(cli):
+	
+	for context in cli.nifi_get_parameter_contexts():
+		for parameter in context['component']['parameters']:
+
+			variable_name = get_parameter_variable_name(parameter)
+			if variable_name is None: continue
+
+			yield (context, parameter, variable_name)
+
+VARIABLE_RE = re.compile(r".*#{\s*(\S+)\s*}", re.DOTALL)
+
+def get_parameter_variable_name(parameter):
+
+	match = VARIABLE_RE.match(parameter['parameter']['description'])
+	return match[1] if match is not None else None
+
+def main(cli_exe, variables_file, variables_json, forced_parameter_file=None, verbose=False):
+
+	cli = ToolkitCli(cli_exe=cli_exe, verbose=verbose)
+
+	if variables_file or variables_json:
+
+		variables = None
+		if variables_file:
+			with open(variables_file, 'r') as f:
+				variables = json.load(f)
+		if variables_json:
+			variables = json.loads(variables_json)
+
+		reset_variable_parameters(cli, variables)
+
+	# Seems less flexible?
+	if forced_parameter_file:
+
+		forced_values = None
+		with open(forced_parameter_file, 'r') as f:
+			forced_parameters = json.load(f)
+
+		force_parameter_values(cli, forced_parameters, force_create_contexts=force_create_contexts)
+
+# TODO: Remove?
+def force_parameter_values(cli, forced_values):
+
+	contexts = cli.nifi_get_parameter_contexts()
+
+	def normal_name(name):
+		return name.strip().lower()
+
+	context_map = dict((normal_name(context['component']['name']), context) for context in contexts)
+
+	for context_name, forced_parameter_values in forced_values.items():
+
+		context = context_map.get(normal_name(context_name), None)
+		if context is None:
+			if not force_create_contexts: continue
+
+		param_map = dict((parameter['parameter']['name'], parameter) for parameter in context['component']['parameters'])
+
+		print(forced_parameter_values)
+		for parameter_name, forced_value in forced_parameter_values.items():
+
+			parameter = param_map.get(parameter_name, None)
+			if parameter is None: continue
+
+			reset_parameter_value(cli, context, parameter, forced_value)
+# END Remove
+
+if __name__ == "__main__":
+
+	parser = argparse.ArgumentParser()
+	# For testing, can be 'docker exec -it nifi with-java-home.sh /opt/nifi/nifi-toolkit-current/bin/cli.sh'
+	parser.add_argument("--cli-exe", default=None)
+	parser.add_argument("--variables-file", default=None)
+	parser.add_argument("--variables-json", default=None)
+	parser.add_argument("--forced-parameters-file", default=None)
+	parser.add_argument("--verbose", action="store_true", default=False)
+	args = parser.parse_args()
+
+	main(args.cli_exe.split(' ') if args.cli_exe is not None else None,
+		 args.variables_file,
+		 args.variables_json,
+		 args.forced_parameters_file,
+		 args.verbose)
