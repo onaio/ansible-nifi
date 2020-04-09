@@ -13,5 +13,5 @@
     content: "{{ all_parameter_contexts_result.stdout }}"
     dest: "{{ nifi_all_parameter_contexts_result_file }}"
 - name: Configure Parameter Contexts
-  include_tasks: parameter_context_tasks.yml
+  include_tasks: parameter_contexts/tasks.yml
   with_items: '{{ nifi_parameter_contexts }}'
