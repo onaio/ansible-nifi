@@ -8,7 +8,7 @@
     JAVA_HOME: "{{ nifi_java_home }}"
   args:
     chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
-- name: Set all_parameter_contexts fact
+- name: Save all_parameter_contexts to file
   copy:
     content: "{{ all_parameter_contexts_result.stdout }}"
     dest: "{{ nifi_all_parameter_contexts_result_file }}"

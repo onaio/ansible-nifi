@@ -22,7 +22,7 @@
 - name: Update Parameter Context
   block:
     - name: Get id of existing Parameter Context
-      shell: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name }}") | .id' {{ nif_all_parameter_contexts_result_file }}
+      shell: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name }}") | .id' {{ nifi_all_parameter_contexts_result_file }}
       register: parameter_id_result
       failed_when: parameter_id_result.stdout == ""
       args:
