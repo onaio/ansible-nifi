@@ -18,7 +18,7 @@
     - name: Get id of existing Parameter Context
       shell: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name }}") | .id' {{ nifi_all_parameter_contexts_result_file }}
       register: parameter_id_result
-      failed_when: parameter_id_result.stdout == ""
+      failed_when: parameter_id_result.stdout | length
       args:
         chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
     - name: Configure values for existing Parameter Context
