@@ -35,4 +35,4 @@
     dest: "{{ nifi_server_bin_dir[ansible_distribution]|default('/usr/bin') }}/with-java-home.sh"
     owner: "{{ nifi_user }}"
     group: "{{ nifi_group }}"
-    mode: 755
+    mode: 0755
