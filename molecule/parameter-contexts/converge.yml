@@ -7,10 +7,8 @@
         name: net-tools
         update_cache: yes
         state: present
-  tasks:
-    - name: "Include ansible-nifi"
-      include_role:
-        name: "ansible-nifi"
+  roles:
+    - role: ansible-nifi
       vars:
         nifi_backup_enabled: false
         nifi_install_toolkit: true
