@@ -42,12 +42,14 @@
 
 - name: Backup from NiFi A
   hosts: nifi_a
-  script: nifi-backup.sh unsafe
-  script: nifi-backup.sh safe
+  tasks:
+    - script: nifi-backup.sh unsafe
+    - script: nifi-backup.sh safe
 
 - name: Restore Flows to NiFi B
   hosts: nifi_b
-  script: nifi-restore.sh unsafe flows
+  tasks:
+    - script: nifi-restore.sh unsafe flows
 
 - name: Check Flows on NiFi B
   hosts: nifi_b
