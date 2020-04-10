@@ -7,13 +7,10 @@
   args:
     chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
   ignore_errors: true  # we expect errors when attempting to create an existing param
-- name: Set parameter values for new Parameter Context
-  shell: "./bin/cli.sh nifi set-param -pcid '{{ parameter_context_result.stdout }}' -pn '{{ inner_item.name }}' -pv '{{ inner_item.value }}' -pd '{{ inner_item.description }}' -ps {{ inner_item.sensitive }} -u {{ nifi_api_base_url }}"
-  args:
-    chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
-  loop: '{{ parameter_context.parameters }}'
-  loop_control:
-    loop_var: inner_item
+- name: Configure values for new Parameter Context
+  include_tasks: set_params.yml
+  vars:
+    parameter_context_id: '{{ parameter_context_result.stdout }}'
   when:
     parameter_context_result.rc == 0
 - name: Update Parameter Context
@@ -24,12 +21,9 @@
       failed_when: parameter_id_result.stdout == ""
       args:
         chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
-    - name: Set parameter values in Parameter Context
-      shell: "./bin/cli.sh nifi set-param -pcid '{{ parameter_id_result.stdout }}' -pn '{{ inner_item.name }}' -pv '{{ inner_item.value }}' -pd '{{ inner_item.description }}' -ps {{ inner_item.sensitive }} -u {{ nifi_api_base_url }}"
-      args:
-        chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
-      loop: '{{ parameter_context.parameters }}'
-      loop_control:
-        loop_var: inner_item
+    - name: Configure values for existing Parameter Context
+      include_tasks: set_params.yml
+      vars:
+        parameter_context_id: '{{ parameter_id_result.stdout }}'
   when:
     - parameter_context_result.rc > 0
