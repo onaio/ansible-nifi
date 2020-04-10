@@ -8,7 +8,7 @@
         update_cache: yes
         state: present
   roles:
-    - role: ansible-nifi
+    - role: "nifi"
       vars:
         nifi_backup_enabled: false
         nifi_install_toolkit: true
