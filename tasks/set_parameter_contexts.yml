@@ -2,16 +2,14 @@
 - name: Install jq
   include: install_jq.yml
 - name: Get existing Parameter Contexts
-  shell: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"
+  shell: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json > {{ nifi_all_parameter_contexts_result_file }}"
   register: all_parameter_contexts_result
   environment:
     JAVA_HOME: "{{ nifi_java_home }}"
   args:
     chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
-- name: Save all_parameter_contexts to file
-  copy:
-    content: "{{ all_parameter_contexts_result.stdout }}"
-    dest: "{{ nifi_all_parameter_contexts_result_file }}"
 - name: Configure Parameter Contexts
   include_tasks: parameter_contexts/main.yml
   with_items: '{{ nifi_parameter_contexts }}'
+  loop_control:
+    loop_var: parameter_context

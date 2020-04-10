@@ -1,7 +1,4 @@
 ---
-- name: Set Parameter Context variable
-  set_fact:
-    parameter_context: "{{ item }}"
 - name: Create Parameter Context
   shell: "./bin/cli.sh nifi create-param-context -pcn '{{ parameter_context.name }}' -pcd '{{ parameter_context.description }}' -u {{ nifi_api_base_url }}"
   register: parameter_context_result
