@@ -38,7 +38,7 @@
       file:
         path: "/opt/nifi/nifi-current/flowfile_repository/file_{{ test_group_id }}"
         state: touch
-        mode: 755
+        mode: 0755
 
 - name: Backup from NiFi A
   hosts: nifi_a
