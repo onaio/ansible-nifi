@@ -1,0 +1,30 @@
+---
+- name: Get parameter description
+  shell: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name  }}") | .component.parameters[] | .parameter | select(.name == "{{ current_parameter.name }}") | .description'  {{ nifi_parameter_contexts_test_file }}
+  register: param_desc_result
+- name: Verify parameter description
+  assert:
+    that:
+      - param_desc_result.stdout == "{{ current_parameter.description }}"  # also verifies that the name is correct due to jq query
+- name: Get parameter sensitive
+  shell: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name  }}") | .component.parameters[] | .parameter | select(.name == "{{ current_parameter.name }}") | .sensitive'  {{ nifi_parameter_contexts_test_file }}
+  register: param_sensitive_result
+- name: Verify parameter sensitive
+  assert:
+    that:
+      - param_sensitive_result.stdout == "{{ current_parameter.sensitive }}"
+- name: Get parameter value
+  shell: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name  }}") | .component.parameters[] | .parameter | select(.name == "{{ current_parameter.name }}") | .value'  {{ nifi_parameter_contexts_test_file }}
+  register: param_value_result
+- name: Verify not-sensitive parameter value
+  assert:
+    that:
+      - param_value_result.stdout == "{{ current_parameter.value }}"
+  when:
+    - current_parameter.sensitive == "false"
+- name: Verify sensitive parameter value
+  assert:
+    that:
+      - param_value_result.stdout == "********"
+  when:
+    - current_parameter.sensitive == "true"
