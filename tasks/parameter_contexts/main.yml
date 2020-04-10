@@ -1,6 +1,6 @@
 ---
 - name: Create Parameter Context
-  shell: "./bin/cli.sh nifi create-param-context -pcn '{{ parameter_context.name }}' -pcd '{{ parameter_context.description }}' -u {{ nifi_api_base_url }}"
+  script: "./bin/cli.sh nifi create-param-context -pcn '{{ parameter_context.name }}' -pcd '{{ parameter_context.description }}' -u {{ nifi_api_base_url }}"
   register: parameter_context_result
   environment:
     JAVA_HOME: "{{ nifi_java_home }}"
@@ -16,7 +16,7 @@
 - name: Update Parameter Context
   block:
     - name: Get id of existing Parameter Context
-      shell: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name }}") | .id' {{ nifi_all_parameter_contexts_result_file }}
+      command: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name }}") | .id' {{ nifi_all_parameter_contexts_result_file }}
       register: parameter_id_result
       failed_when: parameter_id_result.stdout | length
       args:

@@ -2,7 +2,6 @@
 - name: Add Data to NiFi A
   hosts: nifi_a
   tasks:
-
     - name: Wait for NiFi API A
       uri:
           url: http://localhost:8080/nifi-api/process-groups/root/process-groups
@@ -24,7 +23,8 @@
         status_code: 201
       register: result
 
-    - debug:
+    - name: Print result
+      debug:
         msg: "{{ result }}"
 
     - name: Remember group id
@@ -42,19 +42,16 @@
 
 - name: Backup from NiFi A
   hosts: nifi_a
-  tasks:
-    - shell: nifi-backup.sh unsafe
-    - shell: nifi-backup.sh safe
+  script: nifi-backup.sh unsafe
+  script: nifi-backup.sh safe
 
 - name: Restore Flows to NiFi B
   hosts: nifi_b
-  tasks:
-    - shell: nifi-restore.sh unsafe flows
+  script: nifi-restore.sh unsafe flows
 
 - name: Check Flows on NiFi B
   hosts: nifi_b
   tasks:
-
     - name: Wait for NiFi API B
       uri:
           url: http://localhost:8080/nifi-api/process-groups/root/process-groups
@@ -65,7 +62,8 @@
       retries: 60
       delay: 5
 
-    - uri:
+    - name: Get process group
+      uri:
         url: http://localhost:8080/nifi-api/process-groups/{{ test_group_id }}
         method: GET
         headers:
