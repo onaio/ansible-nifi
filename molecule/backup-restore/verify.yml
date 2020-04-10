@@ -17,7 +17,7 @@
       uri:
         url: http://localhost:8080/nifi-api/process-groups/root/process-groups
         method: POST
-        body: { "revision": { "version" : 0 }, "component": { "name" : "Test Group" } }
+        body: { "revision": { "version": 0 }, "component": { "name": "Test Group" } }
         body_format: json
         headers:
           Content-Type: application/json
