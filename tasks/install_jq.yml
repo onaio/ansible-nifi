@@ -2,6 +2,6 @@
 - name: Install jq
   apt:
     name: jq
-    state: 1.5+dfsg-1ubuntu0.1
+    state: present
     update_cache: true
     cache_valid_time: 600
