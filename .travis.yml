@@ -15,4 +15,4 @@ before_script:
   - mv ansible-nifi nifi
   - cd nifi
 script:
-  - molecule test
+  - molecule test --all --parallel
