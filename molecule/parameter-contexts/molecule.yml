@@ -8,10 +8,11 @@ lint: |
   ansible-lint
   flake8
 platforms:
-  - name: ubuntu-18.04
-    image: jrei/systemd-ubuntu:18.04
+  - name: ubuntu-16.04
+    image: solita/ubuntu-systemd:16.04
     privileged: true
-    # command: /sbin/init
+    command: /sbin/init
+    network_mode: host
 provisioner:
   name: ansible
   lint:
