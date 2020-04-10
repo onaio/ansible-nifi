@@ -26,12 +26,17 @@
             value: "hunter2"
             sensitive: "true"
   tasks:
-    - name: Get all parameter contexts
-      shell: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json > {{ nifi_parameter_contexts_test_file }}"
+    - name: Get existing Parameter Contexts
+      shell: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"
+      register: all_parameter_contexts_result
       environment:
         JAVA_HOME: "{{ nifi_java_home }}"
       args:
         chdir: "{{ nifi_toolkit_dir }}/"
+    - name: Save all_parameter_contexts to file
+      copy:
+        content: "{{ all_parameter_contexts_result.stdout }}"
+        dest: "{{ nifi_parameter_contexts_test_file }}"
     - name: Verify Parameter Contexts
       include_tasks: verifications/contexts.yml
       with_items: '{{ nifi_parameter_contexts }}'
