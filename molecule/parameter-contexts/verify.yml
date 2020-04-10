@@ -1,9 +1,38 @@
 ---
-# This is an example playbook to execute Ansible tests.
-
-- name: Verify
+- name: Verify parameter contexts
   hosts: all
+  vars:
+    nifi_api_base_url: http://localhost:8080/nifi-api
+    nifi_java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
+    nifi_toolkit_dir: /opt/nifi/nifi-toolkit-current
+    nifi_parameter_contexts_test_file: /tmp/all_parameter_contexts_result.json
+    nifi_parameter_contexts:
+      - name: "Mosh Test"
+        description: "Just testing"
+        parameters:
+          - name: "first_variable"
+            description: "first_variable"
+            value: "secret"
+            sensitive: "true"
+          - name: "second variable"
+            description: "second variable"
+            value: "secret"
+            sensitive: "false"
+      - name: "Test2"
+        description: "Just testing"
+        parameters:
+          - name: "password"
+            description: "the password"
+            value: "hunter2"
+            sensitive: "true"
   tasks:
-  - name: Example assertion
-    assert:
-      that: true
+  - name: Verify that parameter contexts were created
+    block:
+      - name: Get all parameter contexts
+        shell: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json > {{ nifi_parameter_contexts_test_file }}"
+        register: all_parameter_contexts_result
+        environment:
+          JAVA_HOME: "{{ nifi_java_home }}"
+        args:
+          chdir: "{{ nifi_toolkit_dir }}/"
+
