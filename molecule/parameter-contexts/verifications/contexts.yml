@@ -1,6 +1,6 @@
 ---
 - name: Get parameter context description
-  command: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name }}") | .component.description' {{ nifi_parameter_contexts_test_file }}  # noqa 204
+  command: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name }}") | .component.description' {{ nifi_parameter_contexts_test_file }}  # noqa 204 301
   register: desc_result
 - name: Verify parameter context description
   assert:

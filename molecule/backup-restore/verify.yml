@@ -88,7 +88,7 @@
   hosts: nifi_b
   tasks:
     - name: Do full safe restore
-      shell: nifi-restore.sh safe full
+      command: nifi-restore.sh safe full  # noqa 301
 
 - name: Check Flows and Repositories on NiFi B
   hosts: nifi_b

@@ -31,7 +31,7 @@
         port: 8080
         delay: 10
     - name: Get existing Parameter Contexts
-      command: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"
+      command: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"  # noqa 301
       register: all_parameter_contexts_result
       environment:
         JAVA_HOME: "{{ nifi_java_home }}"

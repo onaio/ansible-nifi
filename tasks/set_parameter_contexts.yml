@@ -7,7 +7,7 @@
     timeout: "{{ nifi_web_http_port_timeout }}"
     delay: 10
 - name: Get existing Parameter Contexts
-  command: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"
+  command: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"  # noqa 301
   args:
     chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
   register: all_parameter_contexts_result
