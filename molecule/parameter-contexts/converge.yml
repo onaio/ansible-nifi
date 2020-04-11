@@ -10,7 +10,6 @@
   roles:
     - role: "nifi"
       vars:
-        nifi_force_restart: true
         nifi_backup_enabled: false
         nifi_install_toolkit: true
         nifi_set_parameter_contexts: true
