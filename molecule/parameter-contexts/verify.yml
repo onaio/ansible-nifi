@@ -26,8 +26,12 @@
             value: "hunter2"
             sensitive: "true"
   tasks:
+    - name: Wait for port 8080 to become open on the host
+      wait_for:
+        port: 8080
+        delay: 10
     - name: Get existing Parameter Contexts
-      shell: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"
+      command: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"
       register: all_parameter_contexts_result
       environment:
         JAVA_HOME: "{{ nifi_java_home }}"
