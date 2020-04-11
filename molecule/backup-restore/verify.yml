@@ -43,13 +43,16 @@
 - name: Backup from NiFi A
   hosts: nifi_a
   tasks:
-    - script: nifi-backup.sh unsafe
-    - script: nifi-backup.sh safe
+    - name: NiFi A unsafe backup
+      script: nifi-backup.sh unsafe
+    - name: NiFi A safe backup
+      script: nifi-backup.sh safe
 
 - name: Restore Flows to NiFi B
   hosts: nifi_b
   tasks:
-    - script: nifi-restore.sh unsafe flows
+    - name: NiFi B restore unsafe flows
+      script: nifi-restore.sh unsafe flows
 
 - name: Check Flows on NiFi B
   hosts: nifi_b
@@ -84,7 +87,8 @@
 - name: Restore Full to NiFi B
   hosts: nifi_b
   tasks:
-    - shell: nifi-restore.sh safe full
+    - name: Do full safe restore
+      shell: nifi-restore.sh safe full
 
 - name: Check Flows and Repositories on NiFi B
   hosts: nifi_b
@@ -100,7 +104,8 @@
       retries: 60
       delay: 5
 
-    - uri:
+    - name: Get test process group
+      uri:
         url: http://localhost:8080/nifi-api/process-groups/{{ test_group_id }}
         method: GET
         headers:
