@@ -2,8 +2,8 @@
 - name: Install jq
   include: install_jq.yml
 - name: Get existing Parameter Contexts
-  script:
-    cmd: "bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"
+  command: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"
+  args:
     chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
   register: all_parameter_contexts_result
   environment:
