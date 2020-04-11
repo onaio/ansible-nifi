@@ -1,6 +1,6 @@
 ---
 - name: Create Parameter Context
-  script: "./bin/cli.sh nifi create-param-context -pcn '{{ parameter_context.name }}' -pcd '{{ parameter_context.description }}' -u {{ nifi_api_base_url }}"
+  command: "./bin/cli.sh nifi create-param-context -pcn '{{ parameter_context.name }}' -pcd '{{ parameter_context.description }}' -u {{ nifi_api_base_url }}"
   register: parameter_context_result
   environment:
     JAVA_HOME: "{{ nifi_java_home }}"
