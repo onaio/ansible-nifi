@@ -1,0 +1,35 @@
+---
+- name: Converge
+  hosts: all
+  pre_tasks:
+    - name: Install networking tools needed for testing running service
+      apt:
+        name: net-tools
+        update_cache: yes
+        state: present
+  roles:
+    - role: "nifi"
+      vars:
+        nifi_backup_enabled: false
+        nifi_install_toolkit: true
+        nifi_set_parameter_contexts: true
+        nifi_api_base_url: http://localhost:8080/nifi-api
+        nifi_parameter_contexts:
+          - name: "Mosh Test"
+            description: "Just testing"
+            parameters:
+              - name: "first_variable"
+                description: "first_variable"
+                value: "secret"
+                sensitive: "true"
+              - name: "second variable"
+                description: "second variable"
+                value: "secret"
+                sensitive: "false"
+          - name: "Test2"
+            description: "Just testing"
+            parameters:
+              - name: "password"
+                description: "the password"
+                value: "hunter2"
+                sensitive: "true"

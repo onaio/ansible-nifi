@@ -2,7 +2,6 @@
 - name: Add Data to NiFi A
   hosts: nifi_a
   tasks:
-
     - name: Wait for NiFi API A
       uri:
           url: http://localhost:8080/nifi-api/process-groups/root/process-groups
@@ -17,14 +16,15 @@
       uri:
         url: http://localhost:8080/nifi-api/process-groups/root/process-groups
         method: POST
-        body: { "revision": { "version" : 0 }, "component": { "name" : "Test Group" } }
+        body: { "revision": { "version": 0 }, "component": { "name": "Test Group" } }
         body_format: json
         headers:
           Content-Type: application/json
         status_code: 201
       register: result
 
-    - debug:
+    - name: Print result
+      debug:
         msg: "{{ result }}"
 
     - name: Remember group id
@@ -38,23 +38,25 @@
       file:
         path: "/opt/nifi/nifi-current/flowfile_repository/file_{{ test_group_id }}"
         state: touch
-        mode: 755
+        mode: 0755
 
 - name: Backup from NiFi A
   hosts: nifi_a
   tasks:
-    - shell: nifi-backup.sh unsafe
-    - shell: nifi-backup.sh safe
+    - name: NiFi A unsafe backup
+      script: nifi-backup.sh unsafe
+    - name: NiFi A safe backup
+      script: nifi-backup.sh safe
 
 - name: Restore Flows to NiFi B
   hosts: nifi_b
   tasks:
-    - shell: nifi-restore.sh unsafe flows
+    - name: NiFi B restore unsafe flows
+      script: nifi-restore.sh unsafe flows
 
 - name: Check Flows on NiFi B
   hosts: nifi_b
   tasks:
-
     - name: Wait for NiFi API B
       uri:
           url: http://localhost:8080/nifi-api/process-groups/root/process-groups
@@ -65,7 +67,8 @@
       retries: 60
       delay: 5
 
-    - uri:
+    - name: Get process group
+      uri:
         url: http://localhost:8080/nifi-api/process-groups/{{ test_group_id }}
         method: GET
         headers:
@@ -84,7 +87,8 @@
 - name: Restore Full to NiFi B
   hosts: nifi_b
   tasks:
-    - shell: nifi-restore.sh safe full
+    - name: Do full safe restore
+      command: nifi-restore.sh safe full  # noqa 301
 
 - name: Check Flows and Repositories on NiFi B
   hosts: nifi_b
@@ -100,7 +104,8 @@
       retries: 60
       delay: 5
 
-    - uri:
+    - name: Get test process group
+      uri:
         url: http://localhost:8080/nifi-api/process-groups/{{ test_group_id }}
         method: GET
         headers:

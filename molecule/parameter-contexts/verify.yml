@@ -1,0 +1,48 @@
+---
+- name: Verify parameter contexts
+  hosts: all
+  vars:
+    nifi_api_base_url: http://localhost:8080/nifi-api
+    nifi_java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
+    nifi_toolkit_dir: /opt/nifi/nifi-toolkit-current
+    nifi_parameter_contexts_test_file: /tmp/all_parameter_contexts_result.json
+    nifi_parameter_contexts:
+      - name: "Mosh Test"
+        description: "Just testing"
+        parameters:
+          - name: "first_variable"
+            description: "first_variable"
+            value: "secret"
+            sensitive: "true"
+          - name: "second variable"
+            description: "second variable"
+            value: "secret"
+            sensitive: "false"
+      - name: "Test2"
+        description: "Just testing"
+        parameters:
+          - name: "password"
+            description: "the password"
+            value: "hunter2"
+            sensitive: "true"
+  tasks:
+    - name: Wait for port 8080 to become open on the host
+      wait_for:
+        port: 8080
+        delay: 10
+    - name: Get existing Parameter Contexts
+      command: "./bin/cli.sh nifi list-param-contexts -u {{ nifi_api_base_url }} -ot json"  # noqa 301
+      register: all_parameter_contexts_result
+      environment:
+        JAVA_HOME: "{{ nifi_java_home }}"
+      args:
+        chdir: "{{ nifi_toolkit_dir }}/"
+    - name: Save all_parameter_contexts to file
+      copy:
+        content: "{{ all_parameter_contexts_result.stdout }}"
+        dest: "{{ nifi_parameter_contexts_test_file }}"
+    - name: Verify Parameter Contexts
+      include_tasks: verifications/contexts.yml
+      with_items: '{{ nifi_parameter_contexts }}'
+      loop_control:
+        loop_var: parameter_context

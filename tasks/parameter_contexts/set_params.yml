@@ -1,0 +1,7 @@
+- name: Set parameter values in Parameter Context
+  command: "./bin/cli.sh nifi set-param -pcid '{{ parameter_context_id }}' -pn '{{ inner_item.name }}' -pv '{{ inner_item.value }}' -pd '{{ inner_item.description }}' -ps '{{ inner_item.sensitive }}' -u {{ nifi_api_base_url }}"  # noqa 204 301
+  args:
+    chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
+  loop: '{{ parameter_context.parameters }}'
+  loop_control:
+    loop_var: inner_item

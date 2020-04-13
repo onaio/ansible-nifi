@@ -314,3 +314,11 @@ nifi_backup_profiles:
         #
 # Custom Nifi scripts from a repository
 nifi_git_scripts: []
+
+# Parameter Contexts
+nifi_set_parameter_contexts: true
+nifi_web_http_port_timeout: 300
+nifi_java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
+nifi_all_parameter_contexts_result_file: /tmp/all_parameter_contexts_result.json
+nifi_api_base_url: http://localhost:{{ nifi_web_http_port }}/nifi-api
+nifi_parameter_contexts:

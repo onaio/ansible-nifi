@@ -1,0 +1,13 @@
+---
+- name: Get parameter context description
+  command: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name }}") | .component.description' {{ nifi_parameter_contexts_test_file }}  # noqa 204 301
+  register: desc_result
+- name: Verify parameter context description
+  assert:
+    that:
+      - desc_result.stdout == "{{ parameter_context.description }}"  # also verifies that the name is correct due to jq query
+- name: Verify Parameters
+  include_tasks: params.yml
+  with_items: '{{ parameter_context.parameters }}'
+  loop_control:
+    loop_var: current_parameter

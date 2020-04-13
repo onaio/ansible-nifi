@@ -5,7 +5,7 @@
     dest: "{{ nifi_server_bin_dir[ansible_distribution]|default('/usr/bin') }}/nifi-backup.sh"
     owner: "{{ nifi_user }}"
     group: "{{ nifi_group }}"
-    mode: 755
+    mode: 0755
 
 - name: Create Restore Script
   template:
@@ -13,4 +13,4 @@
     dest: "{{ nifi_server_bin_dir[ansible_distribution]|default('/usr/bin') }}/nifi-restore.sh"
     owner: "{{ nifi_user }}"
     group: "{{ nifi_group }}"
-    mode: 755
+    mode: 0755

@@ -1,0 +1,29 @@
+---
+- name: Create Parameter Context
+  command: "./bin/cli.sh nifi create-param-context -pcn '{{ parameter_context.name }}' -pcd '{{ parameter_context.description }}' -u {{ nifi_api_base_url }}"  # noqa 204 301
+  register: parameter_context_result
+  environment:
+    JAVA_HOME: "{{ nifi_java_home }}"
+  args:
+    chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
+  ignore_errors: true  # we expect errors when attempting to create an existing param
+- name: Configure values for new Parameter Context
+  include_tasks: set_params.yml
+  vars:
+    parameter_context_id: '{{ parameter_context_result.stdout }}'
+  when:
+    parameter_context_result.rc == 0
+- name: Update Parameter Context
+  block:
+    - name: Get id of existing Parameter Context
+      command: jq -r '.parameterContexts[] | select(.component.name == "{{ parameter_context.name }}") | .id' {{ nifi_all_parameter_contexts_result_file }}  # noqa 204
+      register: parameter_id_result
+      failed_when: parameter_id_result.stdout | length <= 0
+      args:
+        chdir: "{{ nifi_base_dir }}/nifi-toolkit-{{ nifi_version }}/"
+    - name: Configure values for existing Parameter Context
+      include_tasks: set_params.yml
+      vars:
+        parameter_context_id: '{{ parameter_id_result.stdout }}'
+  when:
+    - parameter_context_result.rc > 0

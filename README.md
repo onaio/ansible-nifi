@@ -139,7 +139,41 @@ If `nifi_is_secure` is `True` you must also include
        git_key: # Optional ssh key to use to clone the repository
        destination: # the destination in the Nifi Home folder to copy the downloaded repository to
 
-## Backup / Restore
+    # NiFi parameter contexts
+    nifi_set_parameter_contexts: true
+    nifi_java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
+    nifi_all_parameter_contexts_result_file: /tmp/all_parameter_contexts_result.json
+    nifi_api_base_url: http://localhost:8080/nifi-api
+    nifi_parameter_contexts:
+
+Setting Parameter Contexts
+--------------------------
+
+You can set NiFi parameter contexts like so:
+
+```yml
+nifi_set_parameter_contexts: true
+nifi_java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
+nifi_all_parameter_contexts_result_file: /tmp/all_parameter_contexts_result.json
+nifi_api_base_url: http://localhost:8080/nifi-api
+nifi_parameter_contexts:
+  - name: "Test Group"
+    description: "Just testing"
+    parameters:
+      - name: "variable1"  # this is the parameter name
+        description: "what is this?"  # this is the parameter description
+        value: "secret"  # this is the parameter value
+        sensitive: "true"  # this indicates if the parameter is sensitive - either "true" or "false"
+      - name: "variable2"
+        description: "what is this?"
+        value: "secret"
+        sensitive: "true"  # either "true" or "false"
+```
+
+The above will create a parameter context named "Test Group" which will then have the variables "variable1" and "variable2" with values as defined above.
+
+Backup / Restore
+----------------
 
 Backup/Restore via duplicity is enabled by default - daily backups are performed and stored locally without any other configuration.  The variable which controls this is:
 
