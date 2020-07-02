@@ -44,6 +44,14 @@
   ignore_errors: yes  # this will fail if already imported, ignore that failure
   tags: [ config, security ]
 
+- name: Create mqtt SSL Cerificates
+  java_keystore:
+    name: certificates
+    certificate: "{{ emqtt_certificate_authority_cert }}"
+    private_key: "{{ emqtt_certificate_authority_key }}"
+    password: "{{ emqtt_secure_password }}"
+    dest: "{{ emqtt_kestore_file_dest }}"
+
 - name: Ensure NiFi owns key files
   file:
     owner: "{{ nifi_user }}"
