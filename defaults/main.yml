@@ -322,3 +322,57 @@ nifi_java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
 nifi_all_parameter_contexts_result_file: /tmp/all_parameter_contexts_result.json
 nifi_api_base_url: http://localhost:{{ nifi_web_http_port }}/nifi-api
 nifi_parameter_contexts:
+nifi_emqtt_certificate_authority_cert: |
+  -----BEGIN CERTIFICATE-----
+  MIIDfjCCAmYCCQDUvVVl3t4gNzANBgkqhkiG9w0BAQsFADCBgDELMAkGA1UEBhMC
+  S0UxEDAOBgNVBAgMB05haXJvYmkxEDAOBgNVBAcMB05haXJvYmkxDDAKBgNVBAoM
+  A09uYTEQMA4GA1UECwwHVGVzdGluZzEPMA0GA1UEAwwGb25hLmlvMRwwGgYJKoZI
+  hvcNAQkBFg1sc2ltYmFAb25hLmlvMB4XDTIwMDcwMzA4MTcyOVoXDTMwMDcwMTA4
+  MTcyOVowgYAxCzAJBgNVBAYTAktFMRAwDgYDVQQIDAdOYWlyb2JpMRAwDgYDVQQH
+  DAdOYWlyb2JpMQwwCgYDVQQKDANPbmExEDAOBgNVBAsMB1Rlc3RpbmcxDzANBgNV
+  BAMMBm9uYS5pbzEcMBoGCSqGSIb3DQEJARYNbHNpbWJhQG9uYS5pbzCCASIwDQYJ
+  KoZIhvcNAQEBBQADggEPADCCAQoCggEBAMA+hjOD0vRBfiIryVmC5LrUt+5Zyvok
+  xvggcZQMSi0+/7shXM1ylDGP0O/Mjsy+ITdx3XgOF19UlRzxkwib/+XKD29436M7
+  OGYKtq0C3UNMHxuZJpYCgt/vX6sJmAep4ln1LO/KE0hndy5OP+bxXb1OzmnuUIae
+  VmceyBVvXtk2hMKcypCukewp2SP1aUGYRpRLPDiMq7E/VhXaCbljqp3v7+I2GvlE
+  ONh+tdwUxqZvjk2N0clNDGEKp4peR6d6MH7aH3q3mKas8uIClbclTWwU6pMH9i2g
+  GpOk86Wo477UfWpHB/iCnESzrvuHVopsaY2pmmhlPhmH7PhounDgsBMCAwEAATAN
+  BgkqhkiG9w0BAQsFAAOCAQEAPtvx+p+sBZA9aWmhjvDsgfQA5OrcOoa/L5Tm6wdx
+  2o+88AgjON1xvIdCHOQw94z7sGbV4Ez1pj4r553HtwJGGhjrzIRtlZaMuT9LEMdr
+  DmppuM7ozyLaitciciHiYbASr0OQ0CU+7iRUFBIzjw+bJIcHDVsIk5r8WpQAbVmE
+  BMry/TefWeaWdOxjdqXFiy3oEJHZp2Y7sShMnXtCruAKGIYgZ9NAEEyfLq9VumFm
+  w1K70GVBORcJjpJQSEmSAIcX+XORzK3OkJnFmPC2/3ZdWGbuSY05bfBUc7522A3L
+  AHIfi9ba4WrMfMcBmDc8EyjHisdZPOTOc1jQh5ffgWgmQA==
+  -----END CERTIFICATE-----
+nifi_emqtt_certificate_authority_key: |
+  -----BEGIN RSA PRIVATE KEY-----
+  MIIEogIBAAKCAQEAwD6GM4PS9EF+IivJWYLkutS37lnK+iTG+CBxlAxKLT7/uyFc
+  zXKUMY/Q78yOzL4hN3HdeA4XX1SVHPGTCJv/5coPb3jfozs4Zgq2rQLdQ0wfG5km
+  lgKC3+9fqwmYB6niWfUs78oTSGd3Lk4/5vFdvU7Oae5Qhp5WZx7IFW9e2TaEwpzK
+  kK6R7CnZI/VpQZhGlEs8OIyrsT9WFdoJuWOqne/v4jYa+UQ42H613BTGpm+OTY3R
+  yU0MYQqnil5Hp3owftofereYpqzy4gKVtyVNbBTqkwf2LaAak6TzpajjvtR9akcH
+  +IKcRLOu+4dWimxpjamaaGU+GYfs+Gi6cOCwEwIDAQABAoIBAQCfGl/4/I23hwh8
+  AV8XzMO+eFRtWDUrxwpAyqEVVQKC5dPCLL9gbQaG6i6Sd+prOqPE/mC7fnYLeLYc
+  CTaV9n3X0N3rdM8pidaIZS+AipFSpApOzfZoSlXEPZkgtcTz+r6Rkt8I6WYCE1dI
+  pIwwduwMw88DTq+oahy6JXiUfOKzwwLgYP1J9XNWtAJ+jgkR18zEMgrOTLEfs08m
+  IOqgDRIuMI+OidjAnB6C+LizIHu3dYagT1PrhVOiO1gIZeKhb+g47XJkyMMpAJ9o
+  knCe/0feT9DYB1LCK/XmHjP4FsPbWxI0LDIwKGT411EUdWMifkU7fESa9IHmEok8
+  bAzNR3nxAoGBAOJBP8wbqTYfKmUCWjqQEhwQW399iVNjETDxWsJAZqOf1rjKziaV
+  bUV16t/+40wL42yUzA1vPFTymV/AIvW3NSMLYVQ9aTNfcbmknf3npJrdRJtEvIiS
+  OQHtmRPofdo//poLUQc5AIY2uON3j8OQaeHBYvNlSLZ0TS1YtbShob0pAoGBANmE
+  oBQrLhqJ5hkAoEbiHZXguso5E/O82DTtq8xI3vX1GCBI3kLU7r9lPjunLuNyLpy4
+  x90smj9es6/+/Zf+aGpPaLY8LDgtLI/R4VLXj1pvebMlRNcaUiKVYoQQW1N+IfDy
+  5LLAOQqHEiAl8NOf/bBuq2bjH94Ty28htgJhoq7bAn8vuZO7eho3UFug8t4VfE5V
+  nR2vxsswy7TUnhSG5Q7BdPXWBPF3Mg3amQTyOtG3OMrAHKLuMoiHYqT3jY/SRNLw
+  kXX2Tv3h2EAk6JRq+nG+OO4/0j/yjuV3gqbHjEL/xn/t/nUZEO0LYn+de5rXpZ6w
+  ABrfPH4Z/m5JIm0xrOZxAoGAMQghYYp+QQM2uAoZFwFfc+qNkIofQkEeZ4fvwwPm
+  JoFSJ+zlFSGUk9ZJmf7Mpf6WHUPV4bhtKL27OX/8QCfb96Lg0rtrqFoegmjoJtlq
+  ehNI1qYfB3Hqc9tCssxRGdgD5KGMBfMoqIPcBR0oVTvqXrwDrRSjmVbS88EgmxbR
+  KiMCgYEArYUgbHqQypaq/WE2Dln32WeDPhbFjg2s6fOqiWsLx6cJk+N7cCz3/Wpm
+  yhAW+v3qWPQpnaCVkF3kgqViRX2AKWITBn2G/vktlHwj2FCJq3Q8quWacokE5EFZ
+  nOFJoIuOBE2Vx0fmGOru4tDSnXxbqRUqkuieAEaQ4028B1nGTXc=
+  -----END RSA PRIVATE KEY-----
+nifi_emqtt_secure_password: "emqtt_pass"
+nifi_emqtt_cert_dir: "/etc/ssl/certs/emqtt"
+nifi_emqtt_kestore_file_dest: "{{ nifi_emqtt_cert_dir }}/keystore.jks"
+create_mqtt_certs: true

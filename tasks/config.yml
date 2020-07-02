@@ -44,13 +44,21 @@
   ignore_errors: yes  # this will fail if already imported, ignore that failure
   tags: [ config, security ]
 
+- name: Ensure cert directories are present
+  file:
+    state: directory
+    owner: "{{ nifi_user }}"
+    group: www-data
+    path: "{{ nifi_emqtt_cert_dir }}"
+
 - name: Create mqtt SSL Cerificates
   java_keystore:
     name: certificates
-    certificate: "{{ emqtt_certificate_authority_cert }}"
-    private_key: "{{ emqtt_certificate_authority_key }}"
-    password: "{{ emqtt_secure_password }}"
-    dest: "{{ emqtt_kestore_file_dest }}"
+    certificate: "{{ nifi_emqtt_certificate_authority_cert }}"
+    private_key: "{{ nifi_emqtt_certificate_authority_key }}"
+    password: "{{ nifi_emqtt_secure_password }}"
+    dest: "{{ nifi_emqtt_kestore_file_dest }}"
+  when: create_mqtt_certs
 
 - name: Ensure NiFi owns key files
   file:
