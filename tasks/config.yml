@@ -58,7 +58,7 @@
     private_key: "{{ nifi_emqtt_certificate_authority_key }}"
     password: "{{ nifi_emqtt_secure_password }}"
     dest: "{{ nifi_emqtt_kestore_file_dest }}"
-  when: create_mqtt_certs
+  when: nifi_create_mqtt_certs
 
 - name: Ensure NiFi owns key files
   file:

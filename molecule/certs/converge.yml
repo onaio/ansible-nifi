@@ -8,11 +8,11 @@
         update_cache: yes
         state: present
 
-    - name: "Generate key for client certificate"
+    - name: "Generate key for root certificate"
       command: openssl genrsa -out /tmp/MyRootCA.key 2048
       changed_when: false
 
-    - name: "Issue certificate for client"
+    - name: "Issue root certificate"
       command: openssl req -x509 -new -nodes -key /tmp/MyRootCA.key -sha256 -days 3650 -out /tmp/MyRootCA.pem
       changed_when: false
 
@@ -20,7 +20,7 @@
   roles:
     - role: nifi
       vars:
-        create_mqtt_certs: true
+        nifi_create_mqtt_certs: true
         nifi_emqtt_certificate_authority_cert: "{{ lookup('file', '/tmp/MyRootCA.pem') }}"
         nifi_emqtt_certificate_authority_key: "{{ lookup('file', '/tmp/MyRootCA.key') }}"
         nifi_emqtt_secure_password: "password"

@@ -327,4 +327,4 @@ nifi_emqtt_certificate_authority_key:
 nifi_emqtt_secure_password:
 nifi_emqtt_cert_dir:
 nifi_emqtt_kestore_file_dest:
-create_mqtt_certs: false
+nifi_create_mqtt_certs: false
