@@ -50,6 +50,7 @@
     owner: "{{ nifi_user }}"
     group: www-data
     path: "{{ nifi_emqtt_cert_dir }}"
+  when: nifi_create_mqtt_certs
 
 - name: Create mqtt SSL Cerificates
   java_keystore:
