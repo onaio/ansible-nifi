@@ -1,0 +1,37 @@
+---
+- name: Converge
+  hosts: all
+  pre_tasks:
+    - name: Install networking tools needed for testing running service
+      apt:
+        name: net-tools
+        update_cache: yes
+        state: present
+
+    - name: "Generate key for root certificate"
+      command: openssl genrsa -out /tmp/MyRootCA.key 2048
+      changed_when: false
+
+    - name: "Issue root certificate"
+      command: openssl req -x509 -new -nodes -key /tmp/MyRootCA.key -sha256 -days 3650 -out /tmp/MyRootCA.pem -subj "{{ certificate_attributes }}"
+      changed_when: false
+
+    - name: "Read certificate key"
+      command: cat /tmp/MyRootCA.key
+      register: certificate_key
+      changed_when: false
+
+    - name: "Read CA cert"
+      command: cat /tmp/MyRootCA.pem
+      register: ca_cert
+      changed_when: false
+
+  roles:
+    - role: nifi
+      vars:
+        nifi_create_mqtt_certs: true
+        nifi_emqtt_certificate_authority_cert: "{{ ca_cert.stdout }}"
+        nifi_emqtt_certificate_authority_key: "{{ certificate_key.stdout }}"
+        nifi_emqtt_secure_password: "password"
+        nifi_emqtt_cert_dir: "/etc/ssl/certs/emqtt"
+        nifi_emqtt_kestore_file_dest: "{{ nifi_emqtt_cert_dir }}/keystore.jks"

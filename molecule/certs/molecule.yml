@@ -1,0 +1,34 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint: |
+  yamllint .
+  ansible-lint
+  flake8
+platforms:
+  - name: ubuntu-16.04
+    image: solita/ubuntu-systemd:16.04
+    privileged: true
+    command: /sbin/init
+    network_mode: host
+provisioner:
+  name: ansible
+  lint:
+    name: ansible-lint
+verifier:
+  name: ansible
+scenario:
+  name: certs
+  test_sequence:
+    - lint
+    - destroy
+    - dependency
+    - syntax
+    - create
+    - prepare
+    - converge
+    - side_effect
+    - verify
+    - destroy
