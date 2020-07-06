@@ -16,13 +16,22 @@
       command: openssl req -x509 -new -nodes -key /tmp/MyRootCA.key -sha256 -days 3650 -out /tmp/MyRootCA.pem -subj "{{ certificate_attributes }}"
       changed_when: false
 
+    - name: "Read certificate key"
+      command: cat /tmp/MyRootCA.key
+      register: certificate_key
+      changed_when: false
+
+    - name: "Read CA cert"
+      command: cat /tmp/MyRootCA.pem
+      register: ca_cert
+      changed_when: false
 
   roles:
     - role: nifi
       vars:
-        nifi_create_mqtt_certs: false
-        nifi_emqtt_certificate_authority_cert: "{{ lookup('file', '/tmp/MyRootCA.pem') }}"
-        nifi_emqtt_certificate_authority_key: "{{ lookup('file', '/tmp/MyRootCA.key') }}"
+        nifi_create_mqtt_certs: true
+        nifi_emqtt_certificate_authority_cert: "{{ ca_cert.stdout }}"
+        nifi_emqtt_certificate_authority_key: "{{ certificate_key.stdout }}"
         nifi_emqtt_secure_password: "password"
         nifi_emqtt_cert_dir: "/etc/ssl/certs/emqtt"
         nifi_emqtt_kestore_file_dest: "{{ nifi_emqtt_cert_dir }}/keystore.jks"
