@@ -328,3 +328,4 @@ nifi_emqtt_secure_password:
 nifi_emqtt_cert_dir:
 nifi_emqtt_kestore_file_dest:
 nifi_create_mqtt_certs: false
+certificate_attributes: "/C=SC/ST=Some State/L=Some City/O=Some Company/OU=Some Department/CN=example.com"
