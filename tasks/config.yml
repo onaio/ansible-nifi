@@ -78,6 +78,14 @@
   changed_when: false
   when: nifi_create_mqtt_certs
 
+- name: Delete key and root certificate used to generate client certificate
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ nifi_emqtt_cert_dir }}/key_cert.pem.txt"
+    - "{{ nifi_emqtt_cert_dir }}/cert.pem"
+
 - name: Ensure NiFi owns key files
   file:
     owner: "{{ nifi_user }}"
