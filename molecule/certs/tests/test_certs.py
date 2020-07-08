@@ -11,6 +11,8 @@ def test_ensure_emqtt_cert_directories_are_present(host):
     assert certs_dir.is_directory
 
 
-def test_ensure_emqtt_certs_are_present(host):
-    certs = host.file("/etc/ssl/certs/emqtt/keystore.jks")
-    assert certs.exists
+def test_ensure_emqtt_keystore_and_truststore_are_present(host):
+    keystore = host.file("/etc/ssl/certs/emqtt/keystore.pkcs12")
+    truststore = host.file("/etc/ssl/certs/emqtt/truststore.jks")
+    assert keystore.exists
+    assert truststore.exists
