@@ -322,10 +322,11 @@ nifi_java_home: /usr/lib/jvm/java-8-openjdk-amd64/jre
 nifi_all_parameter_contexts_result_file: /tmp/all_parameter_contexts_result.json
 nifi_api_base_url: http://localhost:{{ nifi_web_http_port }}/nifi-api
 nifi_parameter_contexts:
+
+# EMQTT Certificates
 nifi_emqtt_certificate_authority_cert:
 nifi_emqtt_certificate_authority_key:
 nifi_emqtt_secure_password:
 nifi_emqtt_cert_dir:
-nifi_emqtt_kestore_file_dest:
 nifi_create_mqtt_certs: false
 certificate_attributes: "/C=SC/ST=Some State/L=Some City/O=Some Company/OU=Some Department/CN=example.com"

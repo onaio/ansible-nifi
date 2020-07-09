@@ -52,13 +52,47 @@
     path: "{{ nifi_emqtt_cert_dir }}"
   when: nifi_create_mqtt_certs
 
-- name: Create mqtt SSL Cerificates
+- name: Copy emqtt certificate and key
+  copy:
+    content: "{{ nifi_emqtt_certificate_authority_key }}\n{{ nifi_emqtt_certificate_authority_cert }}"
+    dest: "{{ nifi_emqtt_cert_dir }}/key_cert.pem.txt"
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+  when: nifi_create_mqtt_certs
+
+- name: "Generate emqtt keystore"
+  command: openssl pkcs12 -export -in "{{ nifi_emqtt_cert_dir }}/key_cert.pem.txt" -out "{{ nifi_emqtt_cert_dir }}/keystore.pkcs12" -noiter -nomaciter -password pass:"{{ nifi_emqtt_secure_password }}" # noqa 204
+  changed_when: false
+  when: nifi_create_mqtt_certs
+
+- name: Copy emqtt certificate to file
+  copy:
+    content: "{{ nifi_emqtt_certificate_authority_cert }}"
+    dest: "{{ nifi_emqtt_cert_dir }}/cert.pem"
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
+  when: nifi_create_mqtt_certs
+
+- name: "Generate emqtt truststore"
+  command: keytool -import -file "{{ nifi_emqtt_cert_dir }}/cert.pem" -alias ca_trust -keystore "{{ nifi_emqtt_cert_dir }}/truststore.jks" --storepass "{{ nifi_emqtt_secure_password }}" -noprompt # noqa 204
+  changed_when: false
+  when: nifi_create_mqtt_certs
+
+- name: Delete key and root certificate used to generate client certificate
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ nifi_emqtt_cert_dir }}/key_cert.pem.txt"
+    - "{{ nifi_emqtt_cert_dir }}/cert.pem"
+
+- name: Create mqtt jks cerificate
   java_keystore:
     name: certificates
     certificate: "{{ nifi_emqtt_certificate_authority_cert }}"
     private_key: "{{ nifi_emqtt_certificate_authority_key }}"
     password: "{{ nifi_emqtt_secure_password }}"
-    dest: "{{ nifi_emqtt_kestore_file_dest }}"
+    dest: "{{ nifi_emqtt_cert_dir }}/keystore.jks"
   when: nifi_create_mqtt_certs
 
 - name: Ensure NiFi owns key files
