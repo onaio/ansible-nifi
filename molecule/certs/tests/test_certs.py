@@ -14,8 +14,10 @@ def test_ensure_emqtt_cert_directories_are_present(host):
 def test_ensure_emqtt_keystore_and_truststore_are_present(host):
     keystore = host.file("/etc/ssl/certs/emqtt/keystore.pkcs12")
     truststore = host.file("/etc/ssl/certs/emqtt/truststore.jks")
+    jks_keystore = host.file("/etc/ssl/certs/emqtt/keystore.jks")
     assert keystore.exists
     assert truststore.exists
+    assert jks_keystore.exists
 
 
 def test_key_and_root_certificate_deleted(host):

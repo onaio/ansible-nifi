@@ -86,6 +86,15 @@
     - "{{ nifi_emqtt_cert_dir }}/key_cert.pem.txt"
     - "{{ nifi_emqtt_cert_dir }}/cert.pem"
 
+- name: Create mqtt jks cerificate
+  java_keystore:
+    name: certificates
+    certificate: "{{ nifi_emqtt_certificate_authority_cert }}"
+    private_key: "{{ nifi_emqtt_certificate_authority_key }}"
+    password: "{{ nifi_emqtt_secure_password }}"
+    dest: "{{ nifi_emqtt_cert_dir }}/keystore.jks"
+  when: nifi_create_mqtt_certs
+
 - name: Ensure NiFi owns key files
   file:
     owner: "{{ nifi_user }}"

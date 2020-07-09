@@ -34,4 +34,3 @@
         nifi_emqtt_certificate_authority_key: "{{ certificate_key.stdout }}"
         nifi_emqtt_secure_password: "password"
         nifi_emqtt_cert_dir: "/etc/ssl/certs/emqtt"
-        nifi_emqtt_kestore_file_dest: "{{ nifi_emqtt_cert_dir }}/keystore.jks"
