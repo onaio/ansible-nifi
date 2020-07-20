@@ -1,3 +1,6 @@
 ---
 - role: geerlingguy.java
 - role: Stouts.backup
+- name: onaio.ssl-certificate
+  src: git+https://github.com/onaio/ansible-ssl-certificate
+  version: master
