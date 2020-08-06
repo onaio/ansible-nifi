@@ -56,14 +56,14 @@ nifi_custom_nars: []
 # Whether to install the nifi toolkit utilities (required for backup/restore)
 nifi_install_toolkit: True
 
-nifi_node_jvm_memory: '1024m'
-nifi_java_command: 'java'
+nifi_node_jvm_memory: "1024m"
+nifi_java_command: "java"
 
 # defaults file / directories for nifi
 nifi_database_repository: "{{ nifi_home }}/database_repository"
 nifi_flowfile_repository: "{{ nifi_home }}/flowfile_repository"
-nifi_content_repositories: [ "{{ nifi_home }}/content_repository" ]
-nifi_provenance_repositories: [ "{{ nifi_home }}/provenance_repository" ]
+nifi_content_repositories: ["{{ nifi_home }}/content_repository"]
+nifi_provenance_repositories: ["{{ nifi_home }}/provenance_repository"]
 nifi_run_dir: "{{ nifi_home }}/run"
 
 # NiFi cluster settings
@@ -82,33 +82,34 @@ nifi_swap_out_threads: 4
 
 # Content Repository Settings
 nifi_content_claim_max_flow_files: 100
-nifi_content_claim_max_appendable_size: '10 MB'
-nifi_content_archive_max_retention_period: '12 hours'
-nifi_content_archive_max_usage_percentage: '50%'
-nifi_content_archive_enabled: 'false'
-nifi_content_always_sync: 'false'
+nifi_content_claim_max_appendable_size: "10 MB"
+nifi_content_archive_max_retention_period: "12 hours"
+nifi_content_archive_max_usage_percentage: "50%"
+nifi_content_archive_enabled: "false"
+nifi_content_always_sync: "false"
 
 # Provenance Settings
-nifi_provenance_implementation: PersistentProvenanceRepository
-nifi_provenance_max_storage_time: '24 hours'
-nifi_provenance_max_storage_size: '1 GB'
-nifi_provenance_rollover_time: '30 secs'
-nifi_provenance_rollover_size: '100 MB'
+nifi_provenance_implementation: WriteAheadProvenanceRepository
+nifi_provenance_max_storage_time: "24 hours"
+nifi_provenance_max_storage_size: "1 GB"
+nifi_provenance_rollover_time: "30 mins"
+nifi_provenance_rollover_size: "1 GB"
+nifi_provenance_index_shard_size: "4 GB"
 nifi_provenance_query_threads: 2
-nifi_provenance_index_threads: 2
+nifi_provenance_index_threads: 8
 nifi_provenance_repository_buffer_size: 100000
 nifi_provenance_indexed_fields: EventType, FlowFileUUID, Filename, ProcessorID, Relationship
 
 # Status repository settings
 nifi_components_status_repository_buffer_size: 1440
-nifi_components_status_snapshot_frequency: '1 min'
+nifi_components_status_snapshot_frequency: "1 min"
 
 # NiFi zookeeper settings
 nifi_zookeeper_servers: []
 nifi_zookeeper_dir: /data/zookeeper
 nifi_state_management_embedded_zookeeper_start: False
-nifi_zookeeper_root_node: '/nifi'
-nifi_zookeeper_session_timeout: '10 seconds'
+nifi_zookeeper_root_node: "/nifi"
+nifi_zookeeper_session_timeout: "10 seconds"
 nifi_zookeeper_autopurge_purgeInterval: 24
 nifi_zookeeper_autopurge_snapRetainCount: 30
 
@@ -203,11 +204,12 @@ _pre_restore_dir: "/tmp/pre_restore/nifi"
 
 _ensure_empty_backup_dir_command: rm -rf "{{ _temp_backup_dir }}" || mkdir -p "{{ _temp_backup_dir }}"
 
-_nifi_link_for_backup_command: "{% for source in nifi_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
-   {% set source_parent = (source | dirname) %}
-   mkdir -p \"{{ _temp_backup_dir }}{{ source_parent }}\" && \\\n
-   ln -s \"{{ source }}\" \"{{ _temp_backup_dir }}{{ source }}\"
-   {% endfor %}"
+_nifi_link_for_backup_command:
+  "{% for source in nifi_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
+  {% set source_parent = (source | dirname) %}
+  mkdir -p \"{{ _temp_backup_dir }}{{ source_parent }}\" && \\\n
+  ln -s \"{{ source }}\" \"{{ _temp_backup_dir }}{{ source }}\"
+  {% endfor %}"
 
 _cleanup_backup_dir_command: rm -rf "{{ _temp_backup_dir }}"
 
@@ -217,30 +219,32 @@ _cleanup_backup_dir_command: rm -rf "{{ _temp_backup_dir }}"
 
 _ensure_empty_prerestore_dir_command: rm -rf "{{ _pre_restore_dir }}" || mkdir -p "{{ _pre_restore_dir }}"
 
-_nifi_save_prerestore_command: "{% for source in nifi_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
-   {% set source_parent = (source | dirname) %}
-   mkdir -p \"{{ _pre_restore_dir }}{{ source_parent }}\" && \\\n
-   mv \"{{ source }}\" \"{{ _pre_restore_dir }}{{ source_parent }}\"
-   {% endfor %}"
+_nifi_save_prerestore_command:
+  "{% for source in nifi_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
+  {% set source_parent = (source | dirname) %}
+  mkdir -p \"{{ _pre_restore_dir }}{{ source_parent }}\" && \\\n
+  mv \"{{ source }}\" \"{{ _pre_restore_dir }}{{ source_parent }}\"
+  {% endfor %}"
 
-_nifi_flows_restore_command: "{% for source in nifi_flow_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
-   mv \"{{ _temp_backup_dir }}{{ source }}\" \"{{ source }}\"
-   {% endfor %}"
+_nifi_flows_restore_command:
+  "{% for source in nifi_flow_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
+  mv \"{{ _temp_backup_dir }}{{ source }}\" \"{{ source }}\"
+  {% endfor %}"
 
-_nifi_repositories_restore_command: "{% for source in nifi_repository_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
-   mv \"{{ _temp_backup_dir }}{{ source }}\" \"{{ source }}\"
-   {% endfor %}"
+_nifi_repositories_restore_command:
+  "{% for source in nifi_repository_backup_sources %}{% if loop.index > 1 %} && \\\n{% endif %}
+  mv \"{{ _temp_backup_dir }}{{ source }}\" \"{{ source }}\"
+  {% endfor %}"
 
-_nifi_backup_s3_param: "{% if nifi_backup_s3_using_http | bool %}DUPL_PARAMS=\"$DUPL_PARAMS --s3-unencrypted-connection\"{% endif %}"
-_nifi_copy_links_param: "DUPL_PARAMS=\"$DUPL_PARAMS --copy-links\""
+_nifi_backup_s3_param: '{% if nifi_backup_s3_using_http | bool %}DUPL_PARAMS="$DUPL_PARAMS --s3-unencrypted-connection"{% endif %}'
+_nifi_copy_links_param: 'DUPL_PARAMS="$DUPL_PARAMS --copy-links"'
 _nifi_default_target_pass_param: "{% if not nifi_backup_target_user %}TARGET_PASS=''{% endif %}"
 
 nifi_backup_profiles:
-
   - name: nifi_unsafe
     schedule: "{{ nifi_backup_schedule }}"
     max_age: "{{ nifi_backup_max_age }}"
-    source:  "{{ _temp_backup_dir }}"
+    source: "{{ _temp_backup_dir }}"
     target: "{{ _nifi_backup_target }}"
     target_user: "{{ nifi_backup_target_user }}"
     target_pass: "{{ nifi_backup_target_pass }}"
@@ -257,7 +261,7 @@ nifi_backup_profiles:
   - name: nifi_safe
     schedule: "{{ nifi_safe_backup_schedule }}"
     max_age: "{{ nifi_safe_backup_max_age }}"
-    source:  "{{ _temp_backup_dir }}"
+    source: "{{ _temp_backup_dir }}"
     target: "{{ _nifi_safe_backup_target }}"
     target_user: "{{ nifi_backup_target_user }}"
     target_pass: "{{ nifi_backup_target_pass }}"
@@ -274,7 +278,7 @@ nifi_backup_profiles:
       - systemctl start nifi
 
   - name: nifi_flows_restore
-    source:  "{{ _temp_backup_dir }}"
+    source: "{{ _temp_backup_dir }}"
     target: "{{ _nifi_backup_target }}"
     target_user: "{{ nifi_backup_target_user }}"
     target_pass: "{{ nifi_backup_target_pass }}"
@@ -293,7 +297,7 @@ nifi_backup_profiles:
       - systemctl start nifi
 
   - name: nifi_full_restore
-    source:  "{{ _temp_backup_dir }}"
+    source: "{{ _temp_backup_dir }}"
     target: "{{ _nifi_backup_target }}"
     target_user: "{{ nifi_backup_target_user }}"
     target_pass: "{{ nifi_backup_target_pass }}"

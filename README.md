@@ -1,26 +1,24 @@
-NiFi
-====
+# NiFi
 
 [![Build Status](https://travis-ci.org/onaio/ansible-nifi.svg?branch=master)](https://travis-ci.org/onaio/ansible-nifi)
 
 Use this role to install, configure, and manage Apache NiFi.
 Role has been tested with NiFi versions 1.1.x, 1.2.0, 1.3.0 and 1.4.0.
 
-Requirements
-------------
+## Requirements
 
-  - `molecule[docker]` v3 or compatible
+- `molecule[docker]` v3 or compatible
 
-Role Variables
---------------
+## Role Variables
 
 ### Required Variables
+
     nifi_version
 
 If `nifi_is_secure` is `True` you must also include
-    nifi_key_pass
-    nifi_keystore_pass
-    nifi_truststore_pass
+nifi_key_pass
+nifi_keystore_pass
+nifi_truststore_pass
 
 ### Variables that determine the nifi install location, and their default values:
 
@@ -53,13 +51,13 @@ If `nifi_is_secure` is `True` you must also include
 
     nifi_node_jvm_memory: '1024m'
     nifi_java_command: 'java'
-    
+
     # defaults file / directories for nifi
     nifi_database_repository: "{{ nifi_home }}/database_repository"
     nifi_flowfile_repository: "{{ nifi_home }}/flowfile_repository"
     nifi_content_repositories: [ "{{ nifi_home }}/content_repository" ]
     nifi_provenance_repositories: [ "{{ nifi_home }}/provenance_repository" ]
-    
+
     # NiFi cluster settings
     nifi_single_node: True
     nifi_input_socket_host:
@@ -67,7 +65,7 @@ If `nifi_is_secure` is `True` you must also include
     nifi_cluster_node_protocol_port:
     nifi_web_http_host: 127.0.0.1
     nifi_web_http_port: 8080
-    
+
     # Queue swap settings
     nifi_queue_swap_threshold: 20000
     nifi_swap_in_threads: 1
@@ -80,22 +78,23 @@ If `nifi_is_secure` is `True` you must also include
     nifi_content_archive_max_usage_percentage: '50%'
     nifi_content_archive_enabled: 'false'
     nifi_content_always_sync: 'false'
-     
-    # Provenance settings: PersistentProvenanceRepository or VolatileProvenanceRepository
-    nifi_provenance_implementation: PersistentProvenanceRepository
+
+    # Provenance settings
+    nifi_provenance_implementation: WriteAheadProvenanceRepository
     nifi_provenance_max_storage_time: '24 hours'
     nifi_provenance_max_storage_size: '1 GB'
-    nifi_provenance_rollover_time: '30 secs'
-    nifi_provenance_rollover_size: '100 MB'
+    nifi_provenance_rollover_time: '30 mins'
+    nifi_provenance_rollover_size: '1 GB'
+    nifi_provenance_index_shard_size: '4 GB'
     nifi_provenance_query_threads: 2
     nifi_provenance_index_threads: 2
     nifi_provenance_repository_buffer_size: 100000
     nifi_provenance_indexed_fields: EventType, FlowFileUUID, Filename, ProcessorID, Relationship
-    
+
     # Status repository settings
     nifi_components_status_repository_buffer_size: 1440
     nifi_components_status_snapshot_frequency: '1 min'
-    
+
     # NiFi zookeeper settings
     nifi_zookeeper_servers: []
     nifi_zookeeper_dir: /data/zookeeper
@@ -104,11 +103,11 @@ If `nifi_is_secure` is `True` you must also include
     nifi_zookeeper_session_timeout: '10 seconds'
     nifi_zookeeper_autopurge_purgeInterval: 24
     nifi_zookeeper_autopurge_snapRetainCount: 30
-    
+
     # Security settings
     nifi_initial_admin:
     nifi_is_secure: False
-    
+
     # Logback logging levels and settings
     nifi_log_app_file_retention: 10
     nifi_log_user_file_retention: 10
@@ -152,8 +151,7 @@ If `nifi_is_secure` is `True` you must also include
     nifi_create_mqtt_certs: false
     certificate_attributes: "/C=SC/ST=Some State/L=Some City/O=Some Company/OU=Some Department/CN=example.com"
 
-Setting Parameter Contexts
---------------------------
+## Setting Parameter Contexts
 
 You can set NiFi parameter contexts like so:
 
@@ -166,28 +164,27 @@ nifi_parameter_contexts:
   - name: "Test Group"
     description: "Just testing"
     parameters:
-      - name: "variable1"  # this is the parameter name
-        description: "what is this?"  # this is the parameter description
-        value: "secret"  # this is the parameter value
-        sensitive: "true"  # this indicates if the parameter is sensitive - either "true" or "false"
+      - name: "variable1" # this is the parameter name
+        description: "what is this?" # this is the parameter description
+        value: "secret" # this is the parameter value
+        sensitive: "true" # this indicates if the parameter is sensitive - either "true" or "false"
       - name: "variable2"
         description: "what is this?"
         value: "secret"
-        sensitive: "true"  # either "true" or "false"
+        sensitive: "true" # either "true" or "false"
 ```
 
 The above will create a parameter context named "Test Group" which will then have the variables "variable1" and "variable2" with values as defined above.
 
-Backup / Restore
-----------------
+## Backup / Restore
 
-Backup/Restore via duplicity is enabled by default - daily backups are performed and stored locally without any other configuration.  The variable which controls this is:
+Backup/Restore via duplicity is enabled by default - daily backups are performed and stored locally without any other configuration. The variable which controls this is:
 
 ```yaml
 nifi_backup_enabled: True
 ```
 
-> By default, unsafe backups are taken of nifi at midnight system time every day.  Because nifi stays online, there is a small chance the flowfiles or even the flows
+> By default, unsafe backups are taken of nifi at midnight system time every day. Because nifi stays online, there is a small chance the flowfiles or even the flows
 > could be corrupted in the backup if they're being modified at the same time.
 > In order to do a safe backup of the flowfile repository the nifi service must be taken offline - this is disruptive so is scheduled for just once-a-week.
 > The default time period to do safe backups is every Monday at 9PM system time, which is a weekday and outside working hours in most of the world assuming GMT.
@@ -210,40 +207,38 @@ When enabled, `nifi-backup.sh` and `nifi-restore.sh` scripts are installed in th
 
 ### Restoring on a new server
 
-To restore nifi onto a clean server, first deploy the nifi role with the appropriate backup target, creating the restore script.  Then just run `nifi-restore.sh` on the new server.
+To restore nifi onto a clean server, first deploy the nifi role with the appropriate backup target, creating the restore script. Then just run `nifi-restore.sh` on the new server.
 
-> The variable `nifi_backup_id` controls which backup files in a bucket that a server will use - if there is only one host in the `nifi` group it will always be `0`.  A project can also explicitly set `nifi_backup_id` to something more meaningful - the idea is to support multi-nifi deployments easily in the future. 
+> The variable `nifi_backup_id` controls which backup files in a bucket that a server will use - if there is only one host in the `nifi` group it will always be `0`. A project can also explicitly set `nifi_backup_id` to something more meaningful - the idea is to support multi-nifi deployments easily in the future.
 
-Creating EMQTT truststore and keystore
---------------------------------------
+## Creating EMQTT truststore and keystore
+
 The KeyStore is used for client(NiFi) authentication to the emqtt server, while the TrustStore is used to authenticate NiFi server in SSL authentication with the emqtt server.
 
 These two can be generated by setting the following variables:
 
 ```yml
-    nifi_create_mqtt_certs: true
-    nifi_emqtt_certificate_authority_cert: "{{ nifi_emqtt_certificate_authority_cert }}" # root certificate contents in a string
-    nifi_emqtt_certificate_authority_key: "{{ nifi_emqtt_certificate_authority_key }}" # certificate key in a string
-    nifi_emqtt_secure_password: "{{ nifi_emqtt_secure_password }}" 
-    nifi_emqtt_cert_dir: "{{ nifi_emqtt_cert_dir }}" # directory to keep the generated trustore and keystore
+nifi_create_mqtt_certs: true
+nifi_emqtt_certificate_authority_cert: "{{ nifi_emqtt_certificate_authority_cert }}" # root certificate contents in a string
+nifi_emqtt_certificate_authority_key: "{{ nifi_emqtt_certificate_authority_key }}" # certificate key in a string
+nifi_emqtt_secure_password: "{{ nifi_emqtt_secure_password }}"
+nifi_emqtt_cert_dir: "{{ nifi_emqtt_cert_dir }}" # directory to keep the generated trustore and keystore
 ```
 
 The above will create `truststore.jks` and `keystore.pkcs12` in the `nifi_emqtt_cert_dir` directory.
 
-Dependencies
-------------
+## Dependencies
 
 - Java >=8 for NiFi
 - Stouts.backup for backups
 
-Example Playbook
-----------------
+## Example Playbook
 
 Install and configure NiFi
 
     - name: Install NiFi
       hosts: servers
-      vars: 
+      vars:
           nifi_log_level_root: WARN
           nifi_node_jvm_memory: '10240M'
           nifi_custom_nars: [ '/opt/extra-nars' ]
@@ -254,13 +249,11 @@ Install and configure NiFi
         - role: nifi
           nifi_version: 1.2.0
 
-License
--------
+## License
 
 MIT
 
-Authors
--------
+## Authors
 
 Update by [Ona Engineering](https://ona.io)
 
