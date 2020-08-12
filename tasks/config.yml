@@ -52,39 +52,65 @@
     path: "{{ nifi_emqtt_cert_dir }}"
   when: nifi_create_mqtt_certs
 
-- name: Copy emqtt certificate and key
-  copy:
-    content: "{{ nifi_emqtt_certificate_authority_key }}\n{{ nifi_emqtt_certificate_authority_cert }}"
-    dest: "{{ nifi_emqtt_cert_dir }}/key_cert.pem.txt"
-    owner: "{{ nifi_user }}"
-    group: "{{ nifi_group }}"
+- name: "Create emqtt SSL certificates"
+  include_role:
+    name: ssl-certificate
+  vars:
+    certificate_authority_key: "{{ nifi_emqtt_certificate_authority_key }}"
+    certificate_authority_cert: "{{  nifi_emqtt_certificate_authority_cert }}"
+    certificates_directory: "{{ nifi_emqtt_certificates_directory }}"
+    certificate_authority_key_filename: "{{ nifi_emqtt_certificate_authority_key_filename }}"
+    certificate_authority_cert_filename: "{{ nifi_emqtt_certificate_authority_cert_filename }}"
+    client_key_filename: "{{ nifi_emqtt_client_key_filename }}"
+    client_csr_filename: "{{ nifi_emqtt_client_csr_filename }}"
+    client_cert_filename: "{{ nifi_emqtt_client_cert_filename }}"
+    certificate_expiry_days: "{{ nifi_emqtt_certificate_expiry_days }}"
+    certificate_attributes: "{{ nifi_emqtt_certificate_attributes }}"
+    certificates_system_owner: "{{ nifi_user }}"
+    certificates_system_group: "{{ nifi_group }}"
   when: nifi_create_mqtt_certs
 
-- name: "Generate emqtt keystore"
-  command: openssl pkcs12 -export -in "{{ nifi_emqtt_cert_dir }}/key_cert.pem.txt" -out "{{ nifi_emqtt_cert_dir }}/keystore.pkcs12" -noiter -nomaciter -password pass:"{{ nifi_emqtt_secure_password }}" # noqa 204
-  changed_when: false
-  when: nifi_create_mqtt_certs
-
-- name: Copy emqtt certificate to file
-  copy:
-    content: "{{ nifi_emqtt_certificate_authority_cert }}"
-    dest: "{{ nifi_emqtt_cert_dir }}/cert.pem"
-    owner: "{{ nifi_user }}"
-    group: "{{ nifi_group }}"
-  when: nifi_create_mqtt_certs
-
-- name: "Generate emqtt truststore"
-  command: keytool -import -file "{{ nifi_emqtt_cert_dir }}/cert.pem" -alias ca_trust -keystore "{{ nifi_emqtt_cert_dir }}/truststore.jks" --storepass "{{ nifi_emqtt_secure_password }}" -noprompt # noqa 204
-  changed_when: false
-  when: nifi_create_mqtt_certs
-
-- name: Delete key and root certificate used to generate client certificate
+- name: "Set ownership for the files"
   file:
     path: "{{ item }}"
-    state: absent
+    owner: "{{ nifi_user }}"
+    group: "{{ nifi_group }}"
   with_items:
-    - "{{ nifi_emqtt_cert_dir }}/key_cert.pem.txt"
-    - "{{ nifi_emqtt_cert_dir }}/cert.pem"
+    - "{{ nifi_emqtt_certificates_directory }}/{{ nifi_emqtt_client_csr_filename }}"
+    - "{{ nifi_emqtt_certificates_directory }}/{{ nifi_emqtt_client_key_filename }}"
+    - "{{ nifi_emqtt_certificates_directory }}/{{ nifi_emqtt_client_cert_filename }}"
+    - "{{ nifi_emqtt_certificates_directory }}/{{ nifi_emqtt_certificate_authority_cert_filename }}"
+  become: true
+  become_user: root
+  when: nifi_create_mqtt_certs
+
+- name: Create PKCS12 keystore from private key and public certificate
+  command: openssl pkcs12 -export -name client-cert -in {{ nifi_emqtt_certificates_directory }}/{{ nifi_emqtt_client_cert_filename }} -inkey {{ nifi_emqtt_certificates_directory }}/{{ nifi_emqtt_client_key_filename }} -out {{ nifi_emqtt_certificates_directory }}/{{ nifi_pkcs_keystore_filename }} -password pass:"{{ nifi_emqtt_secure_password }}" # noqa 204
+  become: true
+  become_user: "{{ nifi_user }}"
+  changed_when: false
+  when: nifi_create_mqtt_certs
+
+- name: Convert a PKCS12 keystore into a JKS keystore
+  command: keytool -importkeystore -destkeystore {{ nifi_emqtt_certificates_directory }}/{{ nifi_jks_keystore_filename }} -deststorepass {{ nifi_emqtt_secure_password }} -srckeystore {{ nifi_emqtt_certificates_directory }}/{{ nifi_pkcs_keystore_filename }} -srcstorepass {{ nifi_emqtt_secure_password }} -srcstoretype pkcs12 -alias client-cert # noqa 204
+  become: true
+  become_user: "{{ nifi_user }}"
+  changed_when: false
+  when: nifi_create_mqtt_certs
+
+- name: Import a server's certificate to the NiFi's trust store.
+  command: keytool -import -alias server-cert -file {{ nifi_emqtt_certificates_directory }}/{{ nifi_emqtt_certificate_authority_cert_filename }} -keystore {{ nifi_emqtt_certificates_directory }}/{{ nifi_truststore_filename }} --storepass "{{ nifi_emqtt_secure_password }}" -noprompt # noqa 204
+  become: true
+  become_user: "{{ nifi_user }}"
+  changed_when: false
+  when: nifi_create_mqtt_certs
+
+- name: Import a NiFi's certificate to the NiFi's trust store.
+  command: keytool -import -alias client-cert -file {{ nifi_emqtt_certificates_directory }}/{{ nifi_emqtt_client_cert_filename }} -keystore {{ nifi_emqtt_certificates_directory }}/{{ nifi_truststore_filename }} --storepass "{{ nifi_emqtt_secure_password }}" -noprompt # noqa 204
+  become: true
+  become_user: "{{ nifi_user }}"
+  changed_when: false
+  when: nifi_create_mqtt_certs
 
 - name: Create mqtt jks cerificate
   java_keystore:
