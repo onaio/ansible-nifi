@@ -19,13 +19,13 @@
     url: http://archive.apache.org/dist/nifi/{{ nifi_version }}/{{ nifi_archive_name }}
     checksum: "{{ nifi_checksum[nifi_version] }}"
     dest: "{{ nifi_base_dir }}/{{ nifi_archive_name }}"
-    force: no
+    force: false
 
 - name: Unarchive NiFi distribution
   unarchive:
     src: "{{ nifi_base_dir }}/{{ nifi_archive_name }}"
     dest: "{{ nifi_base_dir }}"
-    copy: no
+    copy: false
     owner: "{{ nifi_user }}"
     group: "{{ nifi_group }}"
 
@@ -34,7 +34,7 @@
     path: "{{ nifi_base_dir }}"
     state: directory
     mode: "a+rX"
-    recurse: yes
+    recurse: true
 
 - name: Make sure the NiFi distribution dir has right permissions
   file:
