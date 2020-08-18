@@ -12,4 +12,4 @@
         owner: root
         group: root
         mode: '0644'
-      ignore_errors: yes
+      ignore_errors: true

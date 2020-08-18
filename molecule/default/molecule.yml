@@ -4,8 +4,9 @@ dependency:
 driver:
   name: docker
 lint: |
+  set -e
   yamllint .
-  ansible-lint
+  ansible-lint .
   flake8
 
 platforms:
@@ -17,6 +18,8 @@ provisioner:
   name: ansible
   lint:
     name: ansible-lint
+verifier:
+  name: testinfra
 scenario:
   name: default
   test_sequence:

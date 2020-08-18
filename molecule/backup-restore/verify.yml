@@ -4,9 +4,9 @@
   tasks:
     - name: Wait for NiFi API A
       uri:
-          url: http://localhost:8080/nifi-api/process-groups/root/process-groups
-          method: GET
-          status_code: 200
+        url: http://localhost:8080/nifi-api/process-groups/root/process-groups
+        method: GET
+        status_code: 200
       register: result
       until: result.status == 200
       retries: 60
@@ -31,7 +31,7 @@
       set_fact:
         test_group_id: "{{ result.json.id }}"
       delegate_to: "{{ item }}"
-      delegate_facts: True
+      delegate_facts: true
       with_items: ["nifi_b", "nifi_a"]
 
     - name: Create a file in the flowfile repo
@@ -59,9 +59,9 @@
   tasks:
     - name: Wait for NiFi API B
       uri:
-          url: http://localhost:8080/nifi-api/process-groups/root/process-groups
-          method: GET
-          status_code: 200
+        url: http://localhost:8080/nifi-api/process-groups/root/process-groups
+        method: GET
+        status_code: 200
       register: result
       until: result.status == 200
       retries: 60
@@ -96,9 +96,9 @@
 
     - name: Wait for NiFi API B
       uri:
-          url: http://localhost:8080/nifi-api/process-groups/root/process-groups
-          method: GET
-          status_code: 200
+        url: http://localhost:8080/nifi-api/process-groups/root/process-groups
+        method: GET
+        status_code: 200
       register: result
       until: result.status == 200
       retries: 60

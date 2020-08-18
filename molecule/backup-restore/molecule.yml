@@ -17,7 +17,7 @@ platforms:
       - 127.0.11.1:9000:9000
   - name: nifi_a
     image: ubuntu:18.04
-    override_command: False
+    override_command: false
     networks:
       - name: nifi_network
     published_ports:
@@ -27,7 +27,7 @@ platforms:
       - nifi_a_opt:/opt
   - name: nifi_b
     image: ubuntu:18.04
-    override_command: False
+    override_command: false
     networks:
       - name: nifi_network
     published_ports:

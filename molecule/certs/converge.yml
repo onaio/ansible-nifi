@@ -5,7 +5,7 @@
     - name: Install networking tools needed for testing running service
       apt:
         name: net-tools
-        update_cache: yes
+        update_cache: true
         state: present
 
     - name: "Generate key for root certificate"
@@ -27,7 +27,7 @@
       changed_when: false
 
   roles:
-    - role: nifi
+    - role: ansible-nifi
       vars:
         nifi_create_mqtt_certs: true
         nifi_emqtt_certificate_authority_cert: "{{ ca_cert.stdout }}"

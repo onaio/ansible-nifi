@@ -4,8 +4,9 @@ dependency:
 driver:
   name: docker
 lint: |
+  set -e
   yamllint .
-  ansible-lint
+  ansible-lint .
   flake8
 platforms:
   - name: ubuntu-16.04
