@@ -50,6 +50,7 @@
     state: link
     owner: "{{ nifi_user }}"
     group: "{{ nifi_group }}"
+    follow: false
   notify:
     - restart nifi
 
