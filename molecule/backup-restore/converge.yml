@@ -2,7 +2,7 @@
 - name: Converge NiFi A + B
   hosts: nifi_a,nifi_b
   roles:
-    - role: ./nifi
+    - role: ansible-nifi
       vars:
         nifi_web_http_host: "0.0.0.0"
         nifi_backup_id: "nifi.molecule_test"

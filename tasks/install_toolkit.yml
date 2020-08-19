@@ -4,13 +4,13 @@
     url: http://archive.apache.org/dist/nifi/{{ nifi_version }}/{{ nifi_toolkit_archive_name }}
     checksum: "{{ nifi_toolkit_checksum[nifi_version] }}"
     dest: "{{ nifi_base_dir }}/{{ nifi_toolkit_archive_name }}"
-    force: no
+    force: false
 
 - name: Unarchive NiFi Toolkit distribution
   unarchive:
     src: "{{ nifi_base_dir }}/{{ nifi_toolkit_archive_name }}"
     dest: "{{ nifi_base_dir }}"
-    copy: no
+    copy: false
     owner: "{{ nifi_user }}"
     group: "{{ nifi_group }}"
 

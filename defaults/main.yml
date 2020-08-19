@@ -38,11 +38,11 @@ nifi_checksum:
 nifi_toolkit_checksum:
   1.11.4: sha512:9ece3db43ddce218c89517066baef37b728af75db3f4a0ad2ed600539a5ef18fc700489f6ad2586664b6263505c2c9cfe7dab78d5331cb5c3ae084858b1c9a59
 
-# whether to restart nifi after making changes; default is True, for a cluster you may wish to disable
-nifi_perform_restart: True
+# whether to restart nifi after making changes; default is true, for a cluster you may wish to disable
+nifi_perform_restart: true
 
-# whether to force a restart, useful if another role has made changes (such as updating a custom nar); default is False
-nifi_force_restart: False
+# whether to force a restart, useful if another role has made changes (such as updating a custom nar); default is false
+nifi_force_restart: false
 
 # A complete list of IP addresses for each nodes within the nifi cluster
 nifi_nodes_list: []
@@ -54,7 +54,7 @@ nifi_extra_args: []
 nifi_custom_nars: []
 
 # Whether to install the nifi toolkit utilities (required for backup/restore)
-nifi_install_toolkit: True
+nifi_install_toolkit: true
 
 nifi_node_jvm_memory: "1024m"
 nifi_java_command: "java"
@@ -67,7 +67,7 @@ nifi_provenance_repositories: ["{{ nifi_home }}/provenance_repository"]
 nifi_run_dir: "{{ nifi_home }}/run"
 
 # NiFi cluster settings
-nifi_single_node: True
+nifi_single_node: true
 nifi_input_socket_host:
 nifi_input_socket_port:
 nifi_cluster_node_protocol_port:
@@ -107,7 +107,7 @@ nifi_components_status_snapshot_frequency: "1 min"
 # NiFi zookeeper settings
 nifi_zookeeper_servers: []
 nifi_zookeeper_dir: /data/zookeeper
-nifi_state_management_embedded_zookeeper_start: False
+nifi_state_management_embedded_zookeeper_start: false
 nifi_zookeeper_root_node: "/nifi"
 nifi_zookeeper_session_timeout: "10 seconds"
 nifi_zookeeper_autopurge_purgeInterval: 24
@@ -115,8 +115,8 @@ nifi_zookeeper_autopurge_snapRetainCount: 30
 
 # Security settings
 nifi_initial_admin:
-nifi_is_secure: False
-nifi_needs_keys: False
+nifi_is_secure: false
+nifi_needs_keys: false
 nifi_key_pass:
 nifi_store_pass:
 nifi_ca_cert_name: USERTrustRSACertificationAuthority.crt
@@ -151,7 +151,7 @@ nifi_server_alias: nifi-server
 nifi_keytool_dname: "CN=data.ona.io, OU=DATA, O=ONA, L=NY, S=NY, C=US"
 
 # Nifi volume settings
-nifi_mount_volume: False
+nifi_mount_volume: false
 nifi_volume_mount_point: /mnt/nifi-volume
 nifi_volume_device: /dev/xvdf
 nifi_volume_fs_type: ext4
@@ -168,20 +168,20 @@ nifi_test_if_publicly_accessible: false
 # NiFi Backup/Restore
 #
 
-nifi_backup_enabled: True
+nifi_backup_enabled: true
 
 nifi_backup_id: "nifi.{% if 'nifi' in groups %}{{ groups['nifi'].index(inventory_hostname) + 1 }}{% else %}{{ groups['all'].index(inventory_hostname) + 1 }}{% endif %}"
 
-nifi_backup_schedule: "0 0 * * *" # Midnight
+nifi_backup_schedule: "0 0 * * *"  # Midnight
 nifi_backup_max_age: "7D"
 
-nifi_safe_backup_schedule: "0 21 * * 1" # 9PM Monday
+nifi_safe_backup_schedule: "0 21 * * 1"  # 9PM Monday
 nifi_safe_backup_max_age: "30D"
 
 nifi_backup_target: "file:///var/backup/nifi"
 nifi_backup_target_user: null
 nifi_backup_target_pass: null
-nifi_backup_s3_using_http: False
+nifi_backup_s3_using_http: false
 
 nifi_flow_backup_sources: "{{ [nifi_etc_dir, nifi_conf_dir] }}"
 nifi_repository_backup_sources: "{{ [nifi_flowfile_repository, nifi_database_repository] + nifi_content_repositories + nifi_provenance_repositories }}"
@@ -315,7 +315,7 @@ nifi_backup_profiles:
       - "{{ _nifi_repositories_restore_command }}"
       - "{{ _cleanup_backup_dir_command }}"
       - systemctl start nifi
-        #
+
 # Custom Nifi scripts from a repository
 nifi_git_scripts: []
 

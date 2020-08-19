@@ -16,7 +16,7 @@ def test_service(host):
 
 def test_deployed_service(host):
     time.sleep(120)
-    assert host.socket("tcp://0.0.0.0:8080").is_listening
+    assert host.socket("tcp://127.0.0.1:8080").is_listening
 
 
 def test_file_permissions(host):

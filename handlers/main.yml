@@ -3,7 +3,7 @@
 
 - name: reload systemctl
   systemd:
-    daemon_reload: yes
+    daemon_reload: true
 
 - name: restart nifi
   service: name=nifi state=restarted enabled=yes
