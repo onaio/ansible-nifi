@@ -168,7 +168,8 @@
 
 - name: Ensure NiFi is running
   service: name=nifi state=started enabled=yes
+  when: nifi_perform_restart
 
 - name: Ensure NiFi is restarted
   service: name=nifi state=restarted
-  when: nifi_force_restart
+  when: nifi_force_restart and nifi_perform_restart
