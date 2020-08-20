@@ -54,7 +54,7 @@
 
 - name: "Create emqtt SSL certificates"
   include_role:
-    name: ssl-certificate
+    name: ssl-certificates
   vars:
     certificate_authority_key: "{{ nifi_emqtt_certificate_authority_key }}"
     certificate_authority_cert: "{{  nifi_emqtt_certificate_authority_cert }}"
