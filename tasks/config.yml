@@ -76,6 +76,7 @@
 - name: "Generate emqtt truststore"
   command: keytool -import -file "{{ nifi_emqtt_cert_dir }}/cert.pem" -alias ca_trust -keystore "{{ nifi_emqtt_cert_dir }}/truststore.jks" --storepass "{{ nifi_emqtt_secure_password }}" -noprompt  # noqa 204
   changed_when: false
+  ignore_errors: true
   when: nifi_create_mqtt_certs
 
 - name: Delete key and root certificate used to generate client certificate
