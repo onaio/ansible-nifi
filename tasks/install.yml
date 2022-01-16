@@ -43,6 +43,13 @@
     group: "{{ nifi_group }}"
     recurse: true
 
+- name: Download snappy-java
+  get_url:
+    url: https://ona-bdw.s3.eu-west-1.amazonaws.com/snappy-java/snappy-java-1.1.8.4.jar
+    checksum: "sha512:6d928942d47c285ba0f67c563db70abe91a1da88f42f2bc49f2698c17272f02a6bfc072a69cbce538bd0ee8877169d684e8747464441874326edd25a9268403d"
+    dest: "{{ nifi_base_dir }}/nifi-{{ nifi_version }}/lib/"
+  when: ansible_architecture == 'aarch64'
+
 - name: Ensure nifi symlink
   file:
     src: "{{ nifi_base_dir }}/nifi-{{ nifi_version }}"
