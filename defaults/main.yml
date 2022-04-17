@@ -148,7 +148,7 @@ nifi_custom_log_levels: []
 
 # keytool arguments
 nifi_server_alias: nifi-server
-nifi_keytool_dname: "CN=data.ona.io, OU=DATA, O=ONA, L=NY, S=NY, C=US"
+nifi_keytool_dname: "CN=localhost, OU=NIFI, O=HOME, L=NY, S=NY, C=US"
 
 # Nifi volume settings
 nifi_mount_volume: false
